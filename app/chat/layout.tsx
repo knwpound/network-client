@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
 
                 {/* Col 2 */}
-                <div className="col-6 flex-grow-1 p-6 md:overflow-y-auto md:p-12 ">
+                <div className="col-6 flex-grow-1 md:overflow-y-auto p-0">
                     {children}
                 </div>
         </div>
