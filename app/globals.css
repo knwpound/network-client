@@ -1,13 +1,6 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: linear-gradient(135deg, rgba(255,206,180,1) 0%, rgba(231,197,249,1) 50%);
+  --foreground: black;
 }
 
 html,
@@ -35,8 +28,18 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
+}
+
+.side-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #274467;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
 }
