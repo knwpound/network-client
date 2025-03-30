@@ -1,7 +1,7 @@
-import React from "react";
 import RegisterForm from "../ui/RegisterForm";
 
 const RegisterPage = () => {
+
     return (
         <div className="row justify-content-center align-items-center vh-100">
             <div className="col-11 col-sm-10 col-md-7 col-lg-5">
