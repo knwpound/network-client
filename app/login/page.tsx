@@ -2,6 +2,7 @@ import React from "react";
 import LoginForm from "../ui/LoginForm";
 
 const LoginPage = () => {
+  
   return (
     <div className="row justify-content-center align-items-center vh-100">
       <div className="col-11 col-sm-10 col-md-7 col-lg-5">

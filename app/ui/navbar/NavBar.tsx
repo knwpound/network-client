@@ -1,3 +1,4 @@
+
 import React from "react";
 
 const Navbar = () =>{
@@ -11,18 +12,18 @@ const Navbar = () =>{
           }}
         >
             <img 
-                src="../images/icon/home.png" 
-                alt="" 
+                src="../images/icon/chat.png" 
+                alt="Icon" 
                 style={{
                     width: "25px",
                     marginTop:"-70px"
                 }}
             />
             <div className="row align-items-center mb-5 mx-2 mt-auto"> {/* ไว้ใส่ icon หรือ menu */} 
-              <button
-                type="button"
-                className="btn p-0 mb-4"
-                title="Dashboard"
+              <a
+                href="/chat"
+                className="p-0 mb-4"
+                title="Home"
               >
                 <img
                   src="../images/icon/home.png"
@@ -31,11 +32,11 @@ const Navbar = () =>{
                     width: "25px",
                   }}
                 />
-              </button>
-              <button
-                type="button"
-                className="btn p-0 mb-4"
-                title="Dashboard"
+              </a>
+              <a
+                href="/chat/group"
+                className="p-0 mb-4 "
+                title="Create Group"
               >
                 <img
                   src="../images/icon/square-plus.png"
@@ -44,14 +45,15 @@ const Navbar = () =>{
                     width: "25px",
                   }}
                 />
-              </button>
-              <button
-                type="button"
-                className="btn p-0 mb-4 rounded-circle"
-                title="Dashboard"
+              </a>
+              <a
+                href="/chat/profile"
+                className="p-0 mb-4 rounded-circle d-flex align-items-center justify-content-center"
+                title="Profile"
                 style={{
                     background:"#FFCEB4",
-                    
+                    width:"25px",
+                    height:"25px"
                 }}
               >
                 <img
@@ -61,7 +63,7 @@ const Navbar = () =>{
                     width: "22px",
                   }}
                 />
-              </button>
+              </a>
             </div>
         </nav>
     )
