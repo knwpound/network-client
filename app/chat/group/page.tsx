@@ -1,7 +1,36 @@
-import React from "react";
+"use client"
+import React,{useEffect, useState} from "react";
 import InvitedFriend from "../../ui/group/InvitedFriend";
+import {getUsers} from "../../../services/user";
 
 const GroupPage = () => {
+    const [names, setNames] = useState([]);
+
+    useEffect(() => {
+            const fetchUsers = async () => {
+                try {
+                    const users = await getUsers({ select: "name", limit: 3 });
+                    console.log(users);
+                    const extractedData = users.data.map(person => ({
+                        id: person._id,
+                        name: person.name
+                    }));
+    
+                    console.log(extractedData);
+    
+                    setNames(extractedData)
+                    console.log(names);
+    
+                } catch (error) {
+                    console.error("Error fetching users:", error);
+                }
+            };
+        
+            fetchUsers();
+    
+            
+        }, []);
+
     return (
         <div className="container my-3 px-5">
             <h2 className="fw-bold mt-5">Create a group chat</h2>
@@ -47,9 +76,9 @@ const GroupPage = () => {
                         style={{background:"#D9D9D9"}}
                     />
                 <div className="mt-4">
-                    <InvitedFriend name={"Susan"} color={"Pink"}/>
-                    <InvitedFriend name={"Susan"} color={"Pink"}/>
-                    <InvitedFriend name={"Susan"} color={"Pink"}/>
+                {names.map((person) => (
+                <InvitedFriend key={person.id} name={person.name} color={"pink"} />
+            ))}
                 </div>
                 </div>
             </div>

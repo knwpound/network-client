@@ -1,4 +1,3 @@
-// auth.js
 import axios from "axios";
 
 const serverAddr = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -13,14 +12,19 @@ export const registerUser = async (name, email, password) => {
     try {
         const role = "user";
 
-        const { data } = await axios.post(
+        const response = await axios.post(
             `${serverAddr}/api/v1/auth/register`,
             { name, email, password, role },
-            config
+            {
+                withCredentials: true,
+                config
+            }
         );
 
         console.log("Registration Successful");
-        localStorage.setItem("userInfo", JSON.stringify(data));
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        
+
         return data;
     } catch (error) {
         if (error.response) {
@@ -41,10 +45,13 @@ export const registerUser = async (name, email, password) => {
 export const login = async (email,password) => {
         try {
             const response = await axios.post(`${serverAddr}/api/v1/auth/login`, 
-                {email, password}, config);
+                {email, password},{
+                    withCredentials:true,
+                    config 
+                } );
             
             if (response.data) {
-                localStorage.setItem('user', JSON.stringify(response.data)); 
+                localStorage.setItem('user', JSON.stringify(response.data.user)); 
             }
     
             console.log(response.data);

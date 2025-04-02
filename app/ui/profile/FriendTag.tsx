@@ -1,5 +1,6 @@
 import React from "react";
 
+
 const FriendTag = ({name, color}) =>{
     return(
         <div className="d-flex justify-content-center align-items-center bg-white shadow-sm border border-dark 
