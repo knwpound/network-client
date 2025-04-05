@@ -1,8 +1,79 @@
-import React from "react";
+"use client"
+import React,{useEffect, useState, useRef} from "react";
 import SentMessage from "../../ui/chat/SentMessage";
 import RecievedMessage from "../../ui/chat/RecievedMessage";
+import {sendMessage,fetchAllMessages} from "../../../services/message";
+import { useParams } from "next/navigation";
+import axios from "axios";
 
 const ChatPage = () =>{
+  const params = useParams();
+  const cid = String(params!.cid);
+  const [messages, setMessages] = useState([]);
+  const [loading,setLoading]= useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+  const bottomRef = useRef(null);
+
+  const fetchMessages = async () => {
+    try {
+      setLoading(true);
+  
+      const data = await fetchAllMessages(cid);
+      console.log(data, "response");
+      setMessages(data.data);  
+      console.log(data.data);  
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      alert("Failed to fetch messages. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    if (cid) fetchMessages();
+    const user = JSON.parse(localStorage.getItem("user"));
+    setCurrentUser(user);
+  }, [cid]);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+  
+
+  const handleSendMessage = async (e) =>{
+    if(newMessage){
+      try {
+        const messageData = {
+          content: newMessage, 
+          chatId: cid, 
+        };
+  
+        const sentMessage = await sendMessage(messageData);
+  
+        setNewMessage(""); 
+        setMessages([...messages,sentMessage.data]);
+      } catch (error) {
+        alert(`Failed to send message: ${error.message}`);
+      }
+    }
+  
+  };
+
+  const typingHandler = (e) =>{
+    setNewMessage(e.target.value);
+
+    //Typing Indicator Logic
+  };
+
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
+
+
     return(
         <div className="container vh-100 d-flex flex-column bg-white">
             {/* Header */}
@@ -26,21 +97,40 @@ const ChatPage = () =>{
             {/* Chat Box */}
             <div className="flex-grow-1 overflow-auto p-3 bg-white">
                 <div className="d-flex flex-column gap-3">
-                    <SentMessage message={"Hello, I miss you so much"}/>
-                    <RecievedMessage name={"Susan"} color={"Pink"} message={"Miss you too babe"} />
-                    <SentMessage message={"Hello, I miss you so much"}/>
-                    <RecievedMessage name={"Susan"} color={"Pink"} message={"Miss you too babe"} />
-                    <SentMessage message={"Hello, I miss you so much"}/>
-                    <RecievedMessage name={"Susan"} color={"Pink"} message={"Miss you too babe"} />
-                    <RecievedMessage name={"Susan"} color={"Pink"} message={"Miss you too babe"} />
+                    {loading?(
+                      <div>Loading</div>
+                    ):(
+                      <div> {/* Messages */}
+                        {messages.map((message) => {
+                            const isSentByMe = message.sender?._id === currentUser?._id;
+                            return isSentByMe ? (
+                              <SentMessage key={message._id} message={message.content} />
+                            ) : (
+                              <RecievedMessage
+                                key={message._id}
+                                name={message.sender?.name}
+                                color={message.sender?.profileColor}
+                                message={message.content}
+                              />
+                            );
+                          })}
+                        <div ref={bottomRef} />
+                      </div>
+                      
+                    )}
+                    
                 </div>
             </div>
 
             {/* Input Box */}
             <div className="p-3 bg-white border-top d-flex">
                 <input type="text" className="form-control me-2 rounded-4 px-5 border border-0" placeholder="Type a message..."
-                style={{background:"#FFE4D6"}} />
-                <button className="btn fw-semibold">Send</button>
+                style={{background:"#FFE4D6"}} 
+                onChange={typingHandler}
+                value={newMessage}
+                required
+                />
+                <button className="btn fw-semibold" onClick={handleSendMessage}>Send</button>
             </div>
         </div>
     )

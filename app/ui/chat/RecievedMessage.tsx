@@ -2,7 +2,7 @@ import React from "react";
 
 const RecievedMessage = ({name,color,message}) =>{
     return(
-        <div className="d-flex align-items-start">
+        <div className="d-flex align-items-start mt-3">
                         {/* Profile Image */}
                         <div
                             className="ms-3 mt-4 rounded-circle d-flex justify-content-center align-items-center"

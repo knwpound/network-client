@@ -78,6 +78,9 @@ const ProfilePage = () => {
         };
 
         const handleKeyPress = (event) => {
+            e.preventDefault();
+            setLoading(true);
+
             const fetchUsers = async () => {
                 try {
                     const users = await getUsers({ select: "name", limit: 3 });
@@ -98,6 +101,7 @@ const ProfilePage = () => {
             };
         
             fetchUsers();
+            setLoading(false);
         };
     
 
