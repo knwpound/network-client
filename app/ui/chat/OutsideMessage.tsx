@@ -1,10 +1,36 @@
-import React from "react";
+"use client"
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-const OutsideMessage = ({ name, message, date, color, Onread }) => {
+const OutsideMessage = ({ chat }) => {
+    const [name,setName] = useState();
+    const [message, setMessage] = useState("");
+    const [date, setDate] = useState("");
+    const [color,setColor] = useState("light gray")
+    const [Onread, setOnRead] = useState(true);
+    const router = useRouter();
+
+    useState(()=>{
+        const storedUser = localStorage.getItem("user");
+        if(chat.users[0]._id==storedUser._id){
+            setName(chat.users[1].name);
+            setColor(chat.users[1].profileColor);
+        }else{
+            setName(chat.users[0].name);
+            setColor(chat.users[0].profileColor);
+        }
+        setMessage(chat.latestMessage?.content);
+    })
+
+    const handlerOnClick = () =>{
+        router.push(`/chat/${chat._id}`);
+        localStorage.setItem('chat', JSON.stringify(chat));
+    }
     return (
         <button 
-            className="btn d-flex align-items-center rounded-3 shadow-sm py-2 mb-2" 
+            className="btn d-flex align-items-center rounded-3 shadow-sm py-2 mb-2 w-100" 
             style={{ background: "white" }}
+            onClick={handlerOnClick}
         >
             <div 
                 className="ms-3 rounded-circle d-flex justify-content-center align-items-center" 

@@ -1,7 +1,34 @@
-import React from "react";
+"use client"
+import React,{use, useState, useEffect} from "react";
 import OutsideMessage from "./OutsideMessage";
+import axios from "axios";
 
 const ChatRoom = () => {
+    const [chats, setChats] = useState([]);
+    const [loading,setLoading] = useState(false);
+     const fetchChats = async () => {
+        try{
+            
+            const config = {
+                withCredentials: true,
+                headers: {
+                    "Content-type": "application/json",
+                },
+            };
+
+            const {data} = await axios.get("http://localhost:5000/api/v1/chat",config);
+            console.log(data.data);
+            setChats(data.data);
+        }catch(error){
+            console.error("Error fetching chats:", error);
+            alert("Failed to fetch chats. Please try again.");
+        }
+     }
+
+     useEffect(()=>{
+        fetchChats();
+      },[]);
+
     return (
         <div className="container-fluid">
             <h2 className="fw-bold mt-5">Chat Room</h2>
@@ -41,41 +68,9 @@ const ChatRoom = () => {
                 </div>
             </div>
             <div className="container ps-0">
-            <OutsideMessage 
-                name="John Doe" 
-                message="See you next week!" 
-                date="Yesterday" 
-                color="#D9D9D9" 
-                Onread={true}
-            />
-            <OutsideMessage 
-                name="John Doe" 
-                message="See you next week!" 
-                date="Yesterday" 
-                color="#D9D9D9" 
-                Onread={true}
-            />
-            <OutsideMessage 
-                name="John Doe" 
-                message="See you next week!" 
-                date="Yesterday" 
-                color="#D9D9D9" 
-                Onread={false}
-            />
-            <OutsideMessage 
-                name="John Doe" 
-                message="See you next week!" 
-                date="Yesterday" 
-                color="#D9D9D9" 
-                Onread={true}
-            />
-            <OutsideMessage 
-                name="John Doe (3)" 
-                message="See you next week!" 
-                date="Yesterday" 
-                color="#D9D9D9" 
-                Onread={true}
-            />
+                {chats.map((chat) => (
+                    <OutsideMessage chat={chat} key={chat._id} />
+                ))}
             </div>
 
         </div>
