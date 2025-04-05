@@ -4,7 +4,11 @@ import SentMessage from "../../ui/chat/SentMessage";
 import RecievedMessage from "../../ui/chat/RecievedMessage";
 import {sendMessage,fetchAllMessages} from "../../../services/message";
 import { useParams } from "next/navigation";
-import axios from "axios";
+
+import io from 'socket.io-client';
+import { initialize } from "next/dist/server/lib/render-server";
+const serverAddr = process.env.NEXT_PUBLIC_BACKEND_URL;
+var socket, selectedChatCompare;
 
 const ChatPage = () =>{
   const params = useParams();
@@ -13,6 +17,7 @@ const ChatPage = () =>{
   const [loading,setLoading]= useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
   const bottomRef = useRef(null);
 
   const fetchMessages = async () => {
@@ -20,9 +25,10 @@ const ChatPage = () =>{
       setLoading(true);
   
       const data = await fetchAllMessages(cid);
-      console.log(data, "response");
+      
       setMessages(data.data);  
-      console.log(data.data);  
+      
+      socket.emit('join chat', cid);
     } catch (error) {
       console.error("Error fetching messages:", error);
       alert("Failed to fetch messages. Please try again.");
@@ -30,12 +36,37 @@ const ChatPage = () =>{
       setLoading(false);
     }
   };
+
+  useEffect(()=>{
+    socket = io(serverAddr);
+    const user = JSON.parse(localStorage.getItem("user"));
+    socket.emit("setup",user);
+    socket.on('connection',()=> setSocketConnected(true));
+  },);
   
   useEffect(() => {
-    if (cid) fetchMessages();
+    if (cid) 
+      fetchMessages();
     const user = JSON.parse(localStorage.getItem("user"));
     setCurrentUser(user);
+
+    selectedChatCompare = cid
   }, [cid]);
+
+  useEffect(() =>{
+    socket.on('message recieved',(newMessageRecieved)=>{
+      if(!selectedChatCompare || selectedChatCompare !== newMessageRecieved.chat._id){
+
+      }else{
+        console.log("Received message:", newMessageRecieved);
+        setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
+      }
+      
+    });
+    return () => {
+      socket.off('message recieved');
+    };
+  })
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -55,7 +86,10 @@ const ChatPage = () =>{
         const sentMessage = await sendMessage(messageData);
   
         setNewMessage(""); 
+
+        socket.emit('new message', sentMessage.data);
         setMessages([...messages,sentMessage.data]);
+        
       } catch (error) {
         alert(`Failed to send message: ${error.message}`);
       }
