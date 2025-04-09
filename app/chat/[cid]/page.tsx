@@ -4,11 +4,9 @@ import SentMessage from "../../ui/chat/SentMessage";
 import RecievedMessage from "../../ui/chat/RecievedMessage";
 import {sendMessage,fetchAllMessages} from "../../../services/message";
 import { useParams } from "next/navigation";
+import socket from "../../../socket/socket.js";
 
-import io from 'socket.io-client';
-import { initialize } from "next/dist/server/lib/render-server";
-const serverAddr = process.env.NEXT_PUBLIC_BACKEND_URL;
-var socket, selectedChatCompare;
+var selectedChatCompare;
 
 const ChatPage = () =>{
   const params = useParams();
@@ -17,9 +15,10 @@ const ChatPage = () =>{
   const [loading,setLoading]= useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
-  const [socketConnected, setSocketConnected] = useState(false);
+  // const [socketConnected, setSocketConnected] = useState(false);
   const [chatName, setChatName] = useState("Sender");
   const bottomRef = useRef(null);
+  const selectedChatCompareRef = useRef("");
 
   const fetchMessages = async () => {
     try {
@@ -29,7 +28,10 @@ const ChatPage = () =>{
       
       setMessages(data.data);  
       
-      socket.emit('join chat', cid);
+      if (socket.connected) {
+        socket.emit("join chat", cid);
+      }
+
     } catch (error) {
       console.error("Error fetching messages:", error);
       alert("Failed to fetch messages. Please try again.");
@@ -37,13 +39,6 @@ const ChatPage = () =>{
       setLoading(false);
     }
   };
-
-  useEffect(()=>{
-    socket = io(serverAddr);
-    const user = JSON.parse(localStorage.getItem("user"));
-    socket.emit("setup",user);
-    socket.on('connection',()=> setSocketConnected(true));
-  },);
   
   useEffect(() => {
     if (cid) 
@@ -61,13 +56,14 @@ const ChatPage = () =>{
     }else{
       setChatName(chat.chatName);
     }
-    selectedChatCompare = cid
+
   }, [cid]);
 
   useEffect(() =>{
     socket.on('message recieved',(newMessageRecieved)=>{
-      if(!selectedChatCompare || selectedChatCompare !== newMessageRecieved.chat._id){
-
+      console.log("I'm here");
+      if(!cid || cid !== newMessageRecieved.chat._id){
+        console.log(cid,newMessageRecieved.chat._id);
       }else{
         console.log("Received message:", newMessageRecieved);
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
@@ -77,7 +73,8 @@ const ChatPage = () =>{
     return () => {
       socket.off('message recieved');
     };
-  })
+  },[]);
+  
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -99,6 +96,7 @@ const ChatPage = () =>{
         setNewMessage(""); 
 
         socket.emit('new message', sentMessage.data);
+        console.log("1");
         setMessages([...messages,sentMessage.data]);
         
       } catch (error) {
@@ -140,7 +138,8 @@ const ChatPage = () =>{
             </div>
 
             {/* Chat Box */}
-            <div className="flex-grow-1 overflow-auto p-3 bg-white">
+            <div className="flex-grow-1 overflow-auto p-3 bg-white" 
+            >
                 <div className="d-flex flex-column gap-3">
                     {loading?(
                       <div>Loading</div>
