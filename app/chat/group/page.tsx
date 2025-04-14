@@ -61,12 +61,9 @@ const GroupPage = () => {
                         placeholder="Name your group"
                     />
                 </div>
-                <div className="d-flex justify-content-end">
-                    <button className="btn fw-bold shadow-sm rounded-3 mt-3 ms-auto" style={{ background: "#FFCEB4" }}>Save</button>
-                </div>
-            <div>
+            <div className="mt-4">
                 <h5 className="fw-bold">Invite group member</h5>
-                <div className="container bg-white py-4 px-5 rounded-3 shadow-sm">
+                <div className="container bg-white py-3 px-5 rounded-3 shadow-sm">
                 <input
                         type="text"
                         className="form-control rounded-3 fw-medium py-2 w-50"
@@ -75,13 +72,18 @@ const GroupPage = () => {
                         placeholder= "Search by name"
                         style={{background:"#D9D9D9"}}
                     />
-                <div className="mt-4">
+                <div className="mt-3">
                 {names.map((person) => (
                 <InvitedFriend key={person.id} name={person.name} color={"pink"} />
             ))}
                 </div>
                 </div>
             </div>
+            <div className="d-flex mt-3">
+                <button className="btn fw-bold shadow-sm rounded-3 ms-auto" style={{ background: "#D9D9D9" }}>Cancel</button>
+                <button className="btn fw-bold shadow-sm rounded-3 ms-2" style={{ background: "#FFCEB4" }}>Confirm</button>
+            </div>
+            
         </div>
     )
 }
