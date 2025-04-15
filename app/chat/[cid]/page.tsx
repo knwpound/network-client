@@ -6,6 +6,7 @@ import {sendMessage,fetchAllMessages} from "../../../services/message";
 import { useParams } from "next/navigation";
 import socket from "../../../socket/socket.js";
 import DropDownList from "../../ui/chat/DropDownList";
+import LeaveModal from "../../ui/modal/LeaveModal";
 var selectedChatCompare;
 
 const ChatPage = () =>{

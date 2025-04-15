@@ -4,6 +4,7 @@ import OutsideMessage from "./OutsideMessage";
 import OnlineFriend from "./OnlineFriend";
 import axios from "axios";
 import socket from "../../../socket/socket.js";
+import ChatTypeModal from "../modal/ChatTypeModal";
 
 const ChatRoom = () => {
     const [chats, setChats] = useState([]);
@@ -129,7 +130,7 @@ const ChatRoom = () => {
                     <OutsideMessage chat={chat} key={chat._id} />
                 ))}
             </div>
-
+                {/* <ChatTypeModal/> */}
         </div>
     )
 }

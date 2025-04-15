@@ -1,4 +1,5 @@
 import React,{useState} from "react";
+import LeaveModal from "../modal/LeaveModal";
 
 const DropDownList = ({ chat, currentUser }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -45,6 +46,7 @@ const DropDownList = ({ chat, currentUser }) => {
                 ) : (
                   <div></div>
                 )}
+                {/* <LeaveModal/> */}
         </>
         
     )
