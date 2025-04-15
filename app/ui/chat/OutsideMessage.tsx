@@ -12,13 +12,18 @@ const OutsideMessage = ({ chat }) => {
 
     useState(()=>{
         const storedUser = localStorage.getItem("user");
-        if(chat.users[0]._id==storedUser._id){
-            setName(chat.users[1].name);
-            setColor(chat.users[1].profileColor);
-        }else{
-            setName(chat.users[0].name);
-            setColor(chat.users[0].profileColor);
-        }
+        if(!chat.isGroupChat){
+            if(chat.users[0]._id==storedUser._id){
+              setName(chat.users[1].name);
+              setColor(chat.users[1].profileColor);
+            }else{
+              setName(chat.users[0].name);
+              setColor(chat.users[0].profileColor);
+            }
+          }else{
+            setName(chat.chatName);
+            setColor("lightgray");
+          }
         setMessage(chat.latestMessage?.content);
     })
 
