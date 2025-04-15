@@ -10,6 +10,7 @@ const SignUpButton: React.FC<SignUpButtonProps> = ({ onClick, disabled }) => {
     <button
       disabled={disabled}
       onClick={onClick}
+      className='fw-bold'
       style={{
         backgroundColor: '#FFFFFF',
         color: 'black',

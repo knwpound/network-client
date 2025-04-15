@@ -10,6 +10,7 @@ const LogInButton: React.FC<LogInButtonProps> = ({ onClick, disabled }) => {
     <button
       disabled={disabled}
       onClick={onClick}
+      className='fw-bold'
       style={{
         backgroundColor: '#F8A1A6',
         color: 'white',
