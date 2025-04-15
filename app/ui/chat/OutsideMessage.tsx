@@ -21,7 +21,7 @@ const OutsideMessage = ({ chat }) => {
               setColor(chat.users[0].profileColor);
             }
           }else{
-            setName(chat.chatName);
+            setName(`${chat.chatName} (${chat.users.length})`);
             setColor("lightgray");
           }
         setMessage(chat.latestMessage?.content);

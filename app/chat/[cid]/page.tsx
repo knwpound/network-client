@@ -54,7 +54,7 @@ const ChatPage = () =>{
         setChatName(chat.users[0].name);
       }
     }else{
-      setChatName(chat.chatName);
+      setChatName(`${chat.chatName} (${chat.users.length})`);
     }
 
   }, [cid]);
