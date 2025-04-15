@@ -5,7 +5,7 @@ import RecievedMessage from "../../ui/chat/RecievedMessage";
 import {sendMessage,fetchAllMessages} from "../../../services/message";
 import { useParams } from "next/navigation";
 import socket from "../../../socket/socket.js";
-
+import DropDownList from "../../ui/chat/DropDownList";
 var selectedChatCompare;
 
 const ChatPage = () =>{
@@ -17,6 +17,7 @@ const ChatPage = () =>{
   const [currentUser, setCurrentUser] = useState(null);
   // const [socketConnected, setSocketConnected] = useState(false);
   const [chatName, setChatName] = useState("Sender");
+  const [chat, setChat] = useState();
   const bottomRef = useRef(null);
   const selectedChatCompareRef = useRef("");
 
@@ -47,6 +48,7 @@ const ChatPage = () =>{
     setCurrentUser(user);
     
     const chat = JSON.parse(localStorage.getItem("chat"));
+    setChat(chat);
     if(!chat.isGroupChat){
       if(chat.users[0]._id==user._id){
         setChatName(chat.users[1].name);
@@ -122,19 +124,7 @@ const ChatPage = () =>{
             {/* Header */}
             <div className="container d-flex p-3 pt-5 fw-bold align-items-center rounded-top border-bottom">
                 <h3 className="fw-bold m-0 ms-3">{chatName}</h3>
-                <button
-                type="button"
-                className="btn p-2 ms-auto"
-                title="Dashboard"
-              >
-                <img
-                  src="../images/icon/settings.png"
-                  alt=""
-                  style={{
-                    width: "25px",
-                  }}
-                />
-              </button>
+                <DropDownList chat={chat} currentUser={currentUser} /> 
             </div>
 
             {/* Chat Box */}
