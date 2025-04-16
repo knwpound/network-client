@@ -13,6 +13,7 @@ const DropDownList = ({ chat, currentUser }) => {
     const [showRenameModal, setShowRenameModal] = useState(false);
     const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
     const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+    const [showLeaveModal, setShowLeaveModal] = useState(false);
 
     return (
         <>
@@ -74,8 +75,17 @@ const DropDownList = ({ chat, currentUser }) => {
                   ) : (
                     <div className="dropdown-menu dropdown-menu-end show" aria-labelledby="dropdownMenuButton"
                 data-bs-popper="static">
-                  <button className="dropdown-item fw-semibold text-center">Leave Group</button>
-
+                  <button 
+                    className="dropdown-item fw-semibold text-center" 
+                    onClick={() => setShowLeaveModal(true)}>
+                    Leave Group
+                  </button>
+                  <LeaveModal
+                    isOpen={showLeaveModal}
+                    onClose={() => setShowLeaveModal(false)}
+                    chat={chat}
+                    user={currentUser._id}
+                  />
                 </div>
                   )}
                 
