@@ -1,4 +1,5 @@
 import React,{useState} from "react";
+import RenameGroupModal from "../modal/RenameGroupModal";
 import LeaveModal from "../modal/LeaveModal";
 
 const DropDownList = ({ chat, currentUser }) => {
@@ -7,6 +8,10 @@ const DropDownList = ({ chat, currentUser }) => {
           const toggleDropdown = () => {
             setIsOpen(!isOpen);
           };
+    const [showRenameModal, setShowRenameModal] = useState(false);
+    const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
+    const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+
     return (
         <>
             {chat.isGroupChat ? (
@@ -29,10 +34,26 @@ const DropDownList = ({ chat, currentUser }) => {
                 {chat.groupAdmin._id === currentUser._id ? (
                     <div className={`dropdown-menu dropdown-menu-end ${isOpen ? "show" : ""}`} aria-labelledby="dropdownMenuButton"
                     data-bs-popper="static">
-                      <button className="dropdown-item fw-semibold text-center">Rename Group</button>
-                      <button className="dropdown-item fw-semibold text-center">Add Friend</button>
-                      <button className="dropdown-item fw-semibold text-center">Kick Friend</button>
-    
+                      <button
+                        className="dropdown-item fw-semibold text-center"
+                        onClick={() => setShowRenameModal(true)}>
+                        Rename Group
+                      </button>
+                      <button
+                        className="dropdown-item fw-semibold text-center"
+                        onClick={() => open("B")}>
+                        Add Friend
+                      </button>
+                      <button
+                        className="dropdown-item fw-semibold text-center"
+                        onClick={() => open("C")}>
+                        Kick Friend
+                      </button>
+
+                      <RenameGroupModal
+                        isOpen={showRenameModal}
+                        onClose={() => setShowRenameModal(false)}
+                      />
                     </div>
                   ) : (
                     <div className="dropdown-menu dropdown-menu-end show" aria-labelledby="dropdownMenuButton"
