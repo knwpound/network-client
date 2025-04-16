@@ -2,7 +2,7 @@
 import React,{useEffect, useState, useRef} from "react";
 import SentMessage from "../../ui/chat/SentMessage";
 import RecievedMessage from "../../ui/chat/RecievedMessage";
-import {sendMessage,fetchAllMessages} from "../../../services/message";
+import {sendMessage,fetchAllMessages,markMessagesAsRead} from "../../../services/message";
 import { useParams } from "next/navigation";
 import socket from "../../../socket/socket.js";
 import DropDownList from "../../ui/chat/DropDownList";
@@ -30,7 +30,7 @@ const ChatPage = () =>{
       setLoading(true);
   
       const data = await fetchAllMessages(cid);
-      
+      const data2 = await markMessagesAsRead(cid);
       setMessages(data.data);  
       
       if (socket.connected) {
@@ -65,51 +65,99 @@ const ChatPage = () =>{
 
   }, [cid]);
 
-  useEffect(() =>{
-    socket.on('message recieved',(newMessageRecieved)=>{
-      console.log("I'm here");
-      if(!cid || cid !== newMessageRecieved.chat._id){
-        console.log(cid,newMessageRecieved.chat._id);
-      }else{
-        console.log("Received message:", newMessageRecieved);
-        setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
-      }
+  useEffect(() => {
+    socket.on("message recieved", (newMessageRecieved) => {
+      if (!cid || cid !== newMessageRecieved.chat._id) return;
+  
+      // Update local state first
+      setMessages((prevMessages) => {
+        const updated = [...prevMessages, newMessageRecieved];
+  
+        // Scroll to bottom
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+  
+        // Delay marking as read slightly AFTER state is updated
+        setTimeout(() => {
+          markMessagesAsRead(cid).catch((err) =>
+            console.error("Failed to mark as read:", err)
+          );
+        }, 150); // wait until the new message is rendered
+  
+        return updated;
+      });
+    });
+  
+    return () => {
+      socket.off("message recieved");
+    };
+  }, [cid]);
+  
+  
+  useEffect(() => {
+    socket.on("messages read", ({ chatId, readerId }) => {
+      console.log("📬 Server pushed read:", chatId, readerId);
+      console.log("yayS");
+      // Update local message state if needed
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          const chatMatch = msg.chat === chatId || msg.chat?._id === chatId;
+          const alreadyRead = msg.readBy.includes(readerId);
+      
+          console.log(
+            `[MAP] msgID: ${msg._id} | chatMatch: ${chatMatch} | alreadyRead: ${alreadyRead}`
+          );
+      
+          if (chatMatch && !alreadyRead) {
+            console.log(`🔄 Updating readBy for message ${msg._id}`);
+            return { ...msg, readBy: [...msg.readBy, readerId] };
+          }
+      
+          return msg;
+        })
+      );
       
     });
-    return () => {
-      socket.off('message recieved');
-    };
-  },[]);
   
+    return () => {
+      socket.off("messages read");
+    };
+  }, []);
 
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    const timeout = setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 50); // delay ensures DOM is fully rendered
+  
+    return () => clearTimeout(timeout);
   }, [messages]);
   
 
-  const handleSendMessage = async (e) =>{
-    if(newMessage){
+  const handleSendMessage = async (e) => {
+    if (newMessage) {
       try {
         const messageData = {
-          content: newMessage, 
-          chatId: cid, 
+          content: newMessage,
+          chatId: cid,
         };
   
         const sentMessage = await sendMessage(messageData);
   
-        setNewMessage(""); 
-
-        socket.emit('new message', sentMessage.data);
-        console.log("1");
-        setMessages([...messages,sentMessage.data]);
-        
+        const updatedMessage = {
+          ...sentMessage.data,
+          readBy: [...(sentMessage.data.readBy || []), currentUser._id], // 👈 ensure you appear in readBy
+        };
+  
+        setNewMessage("");
+  
+        socket.emit("new message", updatedMessage);
+        setMessages([...messages, updatedMessage]); // 👈 update with local readBy
+  
       } catch (error) {
         alert(`Failed to send message: ${error.message}`);
       }
     }
-  
   };
 
   const typingHandler = (e) =>{
@@ -142,14 +190,20 @@ const ChatPage = () =>{
                         {messages.map((message) => {
                             const isSentByMe = message.sender?._id === currentUser?._id;
                             return isSentByMe ? (
-                              <SentMessage key={message._id} message={message.content} />
+                              <SentMessage
+                              key={message._id}
+                              message={message.content}
+                              time={message.createdAt}
+                              readBy={message.readBy} // pass read status
+                            />
                             ) : (
                               <RecievedMessage
-                                key={message._id}
-                                name={message.sender?.name}
-                                color={message.sender?.profileColor}
-                                message={message.content}
-                              />
+                              key={message._id}
+                              name={message.sender?.name}
+                              color={message.sender?.profileColor}
+                              message={message.content}
+                              time={message.createdAt}
+                            />
                             );
                           })}
                         <div ref={bottomRef} />
