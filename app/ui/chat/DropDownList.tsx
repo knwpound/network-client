@@ -1,6 +1,7 @@
 import React,{useState} from "react";
 import RenameGroupModal from "../modal/RenameGroupModal";
 import LeaveModal from "../modal/LeaveModal";
+import AddFriendModal from "../modal/AddFriendModal";
 
 const DropDownList = ({ chat, currentUser }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -42,18 +43,23 @@ const DropDownList = ({ chat, currentUser }) => {
                       </button>
                       <button
                         className="dropdown-item fw-semibold text-center"
-                        onClick={() => open("B")}>
+                        onClick={() => setShowAddFriendModal(true)}>
                         Add Friend
                       </button>
                       <button
                         className="dropdown-item fw-semibold text-center"
-                        onClick={() => open("C")}>
+                        onClick={() => setShowRemoveFriendModal(true)}>
                         Kick Friend
                       </button>
 
                       <RenameGroupModal
                         isOpen={showRenameModal}
                         onClose={() => setShowRenameModal(false)}
+                        chat={chat}
+                      />
+                      <AddFriendModal
+                        isOpen={showAddFriendModal}
+                        onClose={() => setShowAddFriendModal(false)}
                         chat={chat}
                       />
                     </div>
