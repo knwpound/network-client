@@ -28,7 +28,7 @@ const GroupPage = () => {
 
   const fetchUsers = async () => {
     if (!currentUserId) return;
-  
+
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users`,
@@ -39,7 +39,7 @@ const GroupPage = () => {
           withCredentials: true,
         }
       );
-  
+
       const usersFetched = res.data.data;
       setAllUsers(usersFetched);
       setUsers(usersFetched); // initialize displayed users
@@ -72,7 +72,7 @@ const GroupPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chat/group`,
         {
           name: groupName,
-          users: JSON.stringify([...usersArray, currentUserId]),
+          users: JSON.stringify([...usersArray]),
         },
         {
           withCredentials: true,
@@ -80,6 +80,9 @@ const GroupPage = () => {
       );
 
       const newChatId = response?.data?.data?._id;
+      console.log(newChatId);
+      console.log(response.data.data)
+      localStorage.setItem('chat', JSON.stringify(response.data.data));
       if (!newChatId) throw new Error("Chat ID not found in response");
 
       router.push(`/chat/${newChatId}`);
@@ -135,53 +138,54 @@ const GroupPage = () => {
 
           <div
             ref={listRef}
-       
+
             style={{
+              height:"180px",
               maxHeight: "300px",
               overflowY: "auto",
               marginTop: "1rem",
               paddingRight: "5px",
             }}
           >
-          {users.map((user) => {
-  const isAdded = selectedUsers.some((u) => u._id === user._id);
-  return (
-    <div key={user._id}>
-      <InvitedFriend
-        name={user.name}
-        color={"pink"}
-        isAdded={isAdded}
-        onToggle={() => {
-          if (isAdded) {
-            setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
-          } else {
-            setSelectedUsers([...selectedUsers, user]);
-          }
-        }}
-      />
-    </div>
-  );
-})}
+            {users.map((user) => {
+              const isAdded = selectedUsers.some((u) => u._id === user._id);
+              return (
+                <div key={user._id}>
+                  <InvitedFriend
+                    name={user.name}
+                    color={"pink"}
+                    isAdded={isAdded}
+                    onToggle={() => {
+                      if (isAdded) {
+                        setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
+                      } else {
+                        setSelectedUsers([...selectedUsers, user]);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
 
             {loading && <p className="text-center mt-2">Loading...</p>}
             {!hasMore && <p className="text-center text-muted small">No more users</p>}
           </div>
         </div>
 
-       
+
       </div>
 
-      <div className="d-flex mt-3">
-      <button
-  className="btn fw-bold shadow-sm rounded-3 ms-auto"
-  style={{ background: "#D9D9D9" }}
-  onClick={() => {
-    setSelectedUsers([]);
-    setGroupName("");
-  }}
->
-  Cancel
-</button>
+      <div className="d-flex mt-2">
+        <button
+          className="btn fw-bold shadow-sm rounded-3 ms-auto"
+          style={{ background: "#D9D9D9" }}
+          onClick={() => {
+            setSelectedUsers([]);
+            setGroupName("");
+          }}
+        >
+          Cancel
+        </button>
         <button
           className="btn fw-bold shadow-sm rounded-3 ms-2"
           style={{ background: "#FFCEB4" }}
