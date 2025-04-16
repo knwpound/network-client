@@ -20,7 +20,7 @@ const DeleteAccountModal = ({ isOpen, onClose, user }) => {
           document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
         });
         alert("Delete Account successfully!");
-        router.push("/chat");
+        router.push("/");
         onClose(); // close the modal
       }
       else {
@@ -43,7 +43,7 @@ const DeleteAccountModal = ({ isOpen, onClose, user }) => {
         </div>
         <div className="modal-body mb-3 text-center align-items-center justify-content-center">
           <p className="fw-semibold">
-            Are you sure you want to leave this group
+            Are you sure you want to delete this account
           </p>
           <div className="modal-body mb-3 text-center align-items-center justify-content-center">
             <input

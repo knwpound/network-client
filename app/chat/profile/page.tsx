@@ -12,7 +12,15 @@ const ProfilePage = () => {
     const [names, setNames] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState(null);
     const router = useRouter()
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          setCurrentUserId(user._id);
+        }
+      }, []);
+
     const handleLogout = async () => {
         try {
             userLogout();
@@ -189,7 +197,7 @@ const ProfilePage = () => {
                 <DeleteAccountModal
                     isOpen={showDeleteAccount}
                     onClose={() => setShowDeleteAccount(false)}
-                    // user={chat}
+                    user={currentUserId}
                 />
                 <button 
                     className="btn fw-bold shadow-sm rounded-3 ms-2"

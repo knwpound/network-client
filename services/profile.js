@@ -27,12 +27,13 @@ export const userLogout = async () => {
 
 export const deleteAccount = async (userId) => {
     try {
-        const response = await axios.put(`${serverAddr}/api/v1/users/${userId}`, {},
+        const response = await axios.delete(`${serverAddr}/api/v1/users/${userId}`, {},
             {
                 withCredentials: true,
                 config,
             }
         );
+        userLogout()
 
         return response.data;
     } catch (error) {
