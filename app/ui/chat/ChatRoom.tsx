@@ -125,7 +125,15 @@ const ChatRoom = () => {
                     <a className="dropdown-item" href="#">Something else here</a>
                 </div>
             </div>
-            <div className="container ps-0">
+            <div className="container ps-0" 
+            style={{
+                scrollbarWidth: "none",      
+                msOverflowStyle: "none",
+                maxHeight: "280px",
+                overflowY: "auto",
+                marginTop: "1rem",
+                paddingRight: "5px",
+              }}>
                 {chats.map((chat) => (
                     <OutsideMessage chat={chat} key={chat._id} />
                 ))}
