@@ -3,13 +3,24 @@
 import React, { useEffect, useState } from "react";
 import FriendTag from "../../ui/profile/FriendTag";
 import { changeUserInfo, getUsers } from "../../../services/user";
-
+import { userLogout } from "../../../services/profile"
+import { useRouter } from "next/navigation";
+import DeleteAccountModal from "../../ui/modal/DeleteAccountModal";
 const ProfilePage = () => {
     const [name, setName] = useState(null);
     const [inputValue, setInputValue] = useState(null);
     const [names, setNames] = useState([]);
     const [loading, setLoading] = useState(false);
-
+    const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const router = useRouter()
+    const handleLogout = async () => {
+        try {
+            userLogout();
+            router.push("/")
+        } catch (err) {
+            alert("Error logout: " + err.message);
+        }
+    };
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         console.log(storedUser);
@@ -169,8 +180,23 @@ const ProfilePage = () => {
                 </div>
             </div>
             <div className="d-flex mt-2">
-                <button className="btn fw-bold shadow-sm rounded-3 ms-auto" style={{ background: "#D9D9D9" }}>Delete Account</button>
-                <button className="btn fw-bold shadow-sm rounded-3 ms-2" style={{ background: "#FFCEB4" }}>Logout</button>
+                <button 
+                    className="btn fw-bold shadow-sm rounded-3 ms-auto"
+                    style={{ background: "#D9D9D9" }}
+                    onClick={() => setShowDeleteAccount(true)}>
+                    Delete Account
+                </button>
+                <DeleteAccountModal
+                    isOpen={showDeleteAccount}
+                    onClose={() => setShowDeleteAccount(false)}
+                    // user={chat}
+                />
+                <button 
+                    className="btn fw-bold shadow-sm rounded-3 ms-2"
+                    style={{ background: "#FFCEB4" }}
+                    onClick={handleLogout}>
+                        Logout
+                    </button>
             </div>
         </div>
     )
