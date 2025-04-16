@@ -7,6 +7,9 @@ import { useParams } from "next/navigation";
 import socket from "../../../socket/socket.js";
 import DropDownList from "../../ui/chat/DropDownList";
 import LeaveModal from "../../ui/modal/LeaveModal";
+import RenameGroupModal from "../../ui/modal/RenameGroupModal";
+import AddFriendModal from "../../ui/modal/AddFriendModal";
+import KickFriendModal from "../../ui/modal/KickFriendModal";
 var selectedChatCompare;
 
 const ChatPage = () =>{
@@ -167,6 +170,10 @@ const ChatPage = () =>{
                 />
                 <button className="btn fw-semibold" onClick={handleSendMessage}>Send</button>
             </div>
+            {/* <LeaveModal/> */}
+            {/* <RenameGroupModal/> */}
+            {/* <AddFriendModal/> */}
+            {/* <KickFriendModal/> */}
         </div>
     )
 }
