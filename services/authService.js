@@ -23,8 +23,9 @@ export const registerUser = async (name, email, password) => {
 
         console.log("Registration Successful");
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        
+        console.log(response)
 
+        const { data } = response;
         return data;
     } catch (error) {
         if (error.response) {
