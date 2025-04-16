@@ -47,3 +47,17 @@ export const fetchAllMessages = async(cid) =>{
         throw new Error("Failed to fetch all messages. Please try again.");
     }
 }
+
+export const markMessagesAsRead = async (chatId) => {
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/message/${chatId}/read`,
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to mark messages as read:", error);
+      throw error;
+    }
+  };

@@ -2,7 +2,7 @@
 import React,{useEffect, useState, useRef} from "react";
 import SentMessage from "../../ui/chat/SentMessage";
 import RecievedMessage from "../../ui/chat/RecievedMessage";
-import {sendMessage,fetchAllMessages} from "../../../services/message";
+import {sendMessage,fetchAllMessages,markMessagesAsRead} from "../../../services/message";
 import { useParams } from "next/navigation";
 import socket from "../../../socket/socket.js";
 import DropDownList from "../../ui/chat/DropDownList";
@@ -27,7 +27,7 @@ const ChatPage = () =>{
       setLoading(true);
   
       const data = await fetchAllMessages(cid);
-      
+      const data2 = await markMessagesAsRead(cid);
       setMessages(data.data);  
       
       if (socket.connected) {
@@ -77,7 +77,24 @@ const ChatPage = () =>{
       socket.off('message recieved');
     };
   },[]);
+  useEffect(() => {
+    socket.on("messages read", ({ chatId, readerId }) => {
+      console.log("📬 Server pushed read:", chatId, readerId);
+      
+      // Update local message state if needed
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.chat === chatId && !msg.readBy.includes(readerId)
+            ? { ...msg, readBy: [...msg.readBy, readerId] }
+            : msg
+        )
+      );
+    });
   
+    return () => {
+      socket.off("messages read");
+    };
+  }, []);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -139,14 +156,20 @@ const ChatPage = () =>{
                         {messages.map((message) => {
                             const isSentByMe = message.sender?._id === currentUser?._id;
                             return isSentByMe ? (
-                              <SentMessage key={message._id} message={message.content} />
+                              <SentMessage
+                              key={message._id}
+                              message={message.content}
+                              time={message.createdAt}
+                              readBy={message.readBy} // pass read status
+                            />
                             ) : (
                               <RecievedMessage
-                                key={message._id}
-                                name={message.sender?.name}
-                                color={message.sender?.profileColor}
-                                message={message.content}
-                              />
+                              key={message._id}
+                              name={message.sender?.name}
+                              color={message.sender?.profileColor}
+                              message={message.content}
+                              time={message.createdAt}
+                            />
                             );
                           })}
                         <div ref={bottomRef} />
