@@ -2,6 +2,7 @@ import React,{useState} from "react";
 import RenameGroupModal from "../modal/RenameGroupModal";
 import LeaveModal from "../modal/LeaveModal";
 import AddFriendModal from "../modal/AddFriendModal";
+import KickFriendModal from "../modal/KickFriendModal";
 
 const DropDownList = ({ chat, currentUser }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -41,27 +42,34 @@ const DropDownList = ({ chat, currentUser }) => {
                         >
                         Rename Group
                       </button>
-                      <button
-                        className="dropdown-item fw-semibold text-center"
-                        onClick={() => setShowAddFriendModal(true)}>
-                        Add Friend
-                      </button>
-                      <button
-                        className="dropdown-item fw-semibold text-center"
-                        onClick={() => setShowRemoveFriendModal(true)}>
-                        Kick Friend
-                      </button>
-
                       <RenameGroupModal
                         isOpen={showRenameModal}
                         onClose={() => setShowRenameModal(false)}
                         chat={chat}
                       />
+
+                      <button
+                        className="dropdown-item fw-semibold text-center"
+                        onClick={() => setShowAddFriendModal(true)}>
+                        Add Friend
+                      </button>
                       <AddFriendModal
                         isOpen={showAddFriendModal}
                         onClose={() => setShowAddFriendModal(false)}
                         chat={chat}
                       />
+
+                      <button
+                        className="dropdown-item fw-semibold text-center"
+                        onClick={() => setShowRemoveFriendModal(true)}>
+                        Kick Friend
+                      </button>
+                      <KickFriendModal
+                        isOpen={showRemoveFriendModal}
+                        onClose={() => setShowRemoveFriendModal(false)}
+                        chat={chat}
+                      />
+
                     </div>
                   ) : (
                     <div className="dropdown-menu dropdown-menu-end show" aria-labelledby="dropdownMenuButton"

@@ -30,7 +30,6 @@ export const renameGroup = async (chatId, chatName) => {
 
 export const removeFriend = async (chatId, userId) => {
     try {
-        const { content, chatId } = data;
         
         const response = await axios.put(`${serverAddr}/api/v1/chat/groupremove`,
             {
