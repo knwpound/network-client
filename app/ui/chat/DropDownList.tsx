@@ -36,7 +36,8 @@ const DropDownList = ({ chat, currentUser }) => {
                     data-bs-popper="static">
                       <button
                         className="dropdown-item fw-semibold text-center"
-                        onClick={() => setShowRenameModal(true)}>
+                        onClick={() => setShowRenameModal(true)}
+                        >
                         Rename Group
                       </button>
                       <button
@@ -53,6 +54,7 @@ const DropDownList = ({ chat, currentUser }) => {
                       <RenameGroupModal
                         isOpen={showRenameModal}
                         onClose={() => setShowRenameModal(false)}
+                        chat={chat}
                       />
                     </div>
                   ) : (

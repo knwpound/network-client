@@ -10,11 +10,11 @@ const RenameGroupModal = ({ isOpen, onClose, chat}) =>{
     }
 
     try {
-      const response = await renameGroup(chat, groupName);
+      const response = await renameGroup(chat._id, groupName);
+      
+      console.log(chat._id, response)
+      if (!response.success) throw new Error("Rename failed");
 
-      if (!response.ok) throw new Error("Rename failed");
-
-      // Optionally do something after success
       alert("Group renamed successfully!");
       setGroupName("");
       onClose(); // close the modal

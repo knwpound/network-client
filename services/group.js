@@ -10,18 +10,21 @@ const config = {
 
 export const renameGroup = async (chatId, chatName) => {
     try {
-        const config = {
+        const configs = {
             withCredentials: true,
             headers: {
                 "Content-type": "application/json",
             },
-            data: {
-                "chatId":chatId,
-                "chatName":chatName
-            }
         };
         const response = await axios.put(`${serverAddr}/api/v1/chat/rename`, 
-            config
+            {
+                chatId: chatId,
+                chatName: chatName
+            },
+            {
+                withCredentials: true,
+                configs,
+            } 
         );
 
         // if (response.data) {
