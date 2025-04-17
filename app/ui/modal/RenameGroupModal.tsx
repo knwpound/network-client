@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { renameGroup } from "../../../services/group"
+import { useRouter } from "next/navigation";
 
 const RenameGroupModal = ({ isOpen, onClose, chat}) =>{
   const [groupName, setGroupName] = useState("");
+  const router = useRouter();
+  
   const handleRename = async () => {
     if (!groupName.trim()) {
       alert("Please enter a valid group name");
@@ -16,6 +19,8 @@ const RenameGroupModal = ({ isOpen, onClose, chat}) =>{
       if (!response.success) throw new Error("Rename failed");
 
       alert("Group renamed successfully!");
+      router.push("/chat");
+          location.reload();
       setGroupName("");
       onClose(); // close the modal
     } catch (err) {

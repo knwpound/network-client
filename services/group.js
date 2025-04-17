@@ -68,7 +68,7 @@ export const addFriend = async (chatId, email) => {
         if(userId == null)
             throw new Error("No such user");
 
-        const response = await axios.put(`${serverAddr}/api/v1/chat/groupadd`,
+        const response = await axios.post(`${serverAddr}/api/v1/chat/groupadd`,
             {
                 chatId: chatId,
                 userId : userId

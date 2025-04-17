@@ -1,11 +1,13 @@
 "use client"
 import React, { useState, useEffect } from "react";
 import { removeFriend } from "../../../services/group";
+import { useRouter } from "next/navigation";
 
 const KickFriendModal = ({ isOpen, onClose, chat}) => {
     const [friends, setFriends] = useState([]);
     const [admin, setAdmin] = useState();
     const [kickId, setKickId] = useState("");
+    const router = useRouter();
     const handleKickFriend = async () => {
         try {
             const response = await removeFriend(chat._id, kickId);
@@ -13,6 +15,8 @@ const KickFriendModal = ({ isOpen, onClose, chat}) => {
             if (!response.success) throw new Error("Kick failed");
 
             alert("Kick successfully!");
+            router.push("/chat");
+            location.reload();
             onClose(); // close the modal
         } catch (err) {
             alert("Error Kick Friends: " + err.message);

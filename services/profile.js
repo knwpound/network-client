@@ -27,11 +27,12 @@ export const userLogout = async () => {
 
 export const deleteAccount = async (userId) => {
     try {
-        const response = await axios.delete(`${serverAddr}/api/v1/users/${userId}`, {},
+        const response = await axios.delete(`${serverAddr}/api/v1/users/${userId}`,
             {
                 withCredentials: true,
                 config,
             }
+            
         );
         userLogout()
 
@@ -42,9 +43,13 @@ export const deleteAccount = async (userId) => {
     }
 };
 
-export const searchByName = async (chatId, email) => {
+export const searchByName = async (name) => {
     try {
-        const userList = await axios.get(`${serverAddr}/api/v1/users`, {},
+        const userList = await axios.get(`${serverAddr}/api/v1/users`, {
+                params: {
+                    search: name,
+                }
+            },
             {
                 withCredentials: true,
                 config,

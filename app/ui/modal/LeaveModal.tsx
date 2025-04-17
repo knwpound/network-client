@@ -13,6 +13,7 @@ const LeaveModal = ({ isOpen, onClose, chat, user}) =>{
 
             alert("Leaving successfully!");
             router.push("/chat");
+            location.reload();
             onClose(); // close the modal
         } catch (err) {
             alert("Error Leaving: " + err.message);

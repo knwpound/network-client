@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { addFriend } from "../../../services/group";
+import { useRouter } from "next/navigation";
 
 const AddFriendModal = ({ isOpen, onClose, chat}) =>{
   const [friendId, setFriendId] = useState("");
+  const router = useRouter();
+  
     const handleAddFriend = async () => {
     if (!friendId.trim()) {
       alert("Please enter a valid group name");
@@ -16,6 +19,7 @@ const AddFriendModal = ({ isOpen, onClose, chat}) =>{
       if (!response.success) throw new Error("Add Friend failed");
 
       alert("Add Friend successfully!");
+      router.push("/chat");
       setFriendId("");
       onClose();
     } catch (err) {
