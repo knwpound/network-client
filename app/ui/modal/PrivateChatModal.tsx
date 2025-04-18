@@ -85,32 +85,26 @@ const PrivateChatModal: React.FC<PrivateChatModalProps> = ({ show, onClose }) =>
   
       // Get current user's name
       const userFromStorage = JSON.parse(localStorage.getItem("user") || "{}");
-      const currentUserName = userFromStorage.name || "Me";
   
       // Get the other user's name
       const otherUser = users.find((user) => user._id === otherUserId);
-      const otherUserName = otherUser?.name || "Friend";
   
-      // Create the group name
-      const groupName = `${currentUserName} and ${otherUserName}`;
-  
-      const usersArray = [currentUserId, otherUserId];
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chat/group`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chat/`,
         {
-          name: groupName,
-          users: JSON.stringify(usersArray),
+          userId: otherUserId,
         },
         {
           withCredentials: true,
         }
       );
-  
-      const newChatId = response?.data?.data?._id;
+      
+      console.log(response);
+      const newChatId = response?.data?._id;
       console.log("New Chat ID:", newChatId);
-      console.log("Chat Data:", response.data.data);
+      console.log("Chat Data:", response.data);
   
-      localStorage.setItem("chat", JSON.stringify(response.data.data));
+      localStorage.setItem('chat', JSON.stringify(response.data));
   
       if (!newChatId) throw new Error("Chat ID not found in response");
   
@@ -119,7 +113,7 @@ const PrivateChatModal: React.FC<PrivateChatModalProps> = ({ show, onClose }) =>
         router.push(`/chat/${newChatId}`);
       }
     } catch (error) {
-      console.error("Error creating group chat:", error);
+      console.error("Error creating chat:", error);
       alert("Failed to create private chat.");
     } finally {
       setLoading(false);

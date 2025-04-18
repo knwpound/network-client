@@ -72,9 +72,21 @@ const ChatRoom = () => {
         };
       },[]);
       
-      const filteredChats = chats.filter((chat) =>
-        chat.chatName?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filteredChats = chats.filter((chat) => {
+        const lowerSearch = searchTerm.toLowerCase();
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+      
+        if (chat.isGroupChat) {
+          return chat.chatName?.toLowerCase().includes(lowerSearch);
+        } else {
+          const otherUser = chat.users.find(
+            (user) => user._id !== currentUser._id
+          );
+      
+          return otherUser?.name?.toLowerCase().includes(lowerSearch);
+        }
+      });
+      
 
       const handlePrivateClick = () => {
         setShowChatTypeModal(false);
