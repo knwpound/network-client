@@ -5,12 +5,19 @@ import OnlineFriend from "./OnlineFriend";
 import axios from "axios";
 import socket from "../../../socket/socket.js";
 import ChatTypeModal from "../modal/ChatTypeModal";
+import { useRouter } from "next/navigation";
+import PrivateChatModal from "../modal/PrivateChatModal";
 
 const ChatRoom = () => {
     const [chats, setChats] = useState([]);
     const [loading,setLoading] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [socketConnected, setSocketConnected] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const router = useRouter();
+    const [showChatTypeModal, setShowChatTypeModal] = useState(false);
+    const [showPrivateModal, setShowPrivateModal] = useState(false);
+
     const serverAddr = process.env.NEXT_PUBLIC_BACKEND_URL;
      const fetchChats = async () => {
         try{
@@ -65,7 +72,26 @@ const ChatRoom = () => {
         };
       },[]);
       
+      const filteredChats = chats.filter((chat) =>
+        chat.chatName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
+      const handlePrivateClick = () => {
+        setShowChatTypeModal(false);
+        setShowPrivateModal(true);
+      };
+    
+      const handleGroupClick = () => {
+        setShowChatTypeModal(false);
+        router.push("/chat/group");
+      };
+    
+      const handleConfirmPrivate = (user: string) => {
+        setShowPrivateModal(false);
+        console.log("Selected user:", user);
+        // You could trigger a request or navigate to a new chat room here
+      };
+      
 
     return (
         <div className="container-fluid">
@@ -78,8 +104,11 @@ const ChatRoom = () => {
                     id="InputUserName"
                     aria-describedby="userNameHelp"
                     placeholder="Search Conversations"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <button
+                    onClick={() => setShowChatTypeModal(true)}
                     className="btn rounded-circle d-flex justify-content-center align-items-center"
                     style={{
                         background: "#EBBEFE",
@@ -95,6 +124,19 @@ const ChatRoom = () => {
                         }}
                     />
                 </button>
+                <ChatTypeModal
+                    show={showChatTypeModal}
+                    onClose={() => setShowChatTypeModal(false)}
+                    onPrivate={handlePrivateClick}
+                    onGroup={handleGroupClick}
+                />
+
+                <PrivateChatModal
+                    show={showPrivateModal}
+                    onClose={() => setShowPrivateModal(false)}
+                    onConfirm={handleConfirmPrivate}
+                />
+
             </div>
             <div className="mt-3 d-flex"
              style={{
@@ -134,7 +176,7 @@ const ChatRoom = () => {
                 marginTop: "1rem",
                 paddingRight: "5px",
               }}>
-                {chats.map((chat) => (
+                {filteredChats.map((chat) => (
                     <OutsideMessage chat={chat} key={chat._id} />
                 ))}
             </div>
