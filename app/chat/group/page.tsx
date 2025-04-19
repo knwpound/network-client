@@ -86,6 +86,7 @@ const GroupPage = () => {
       if (!newChatId) throw new Error("Chat ID not found in response");
 
       router.push(`/chat/${newChatId}`);
+      location.reload()
     } catch (error) {
       console.error("Error creating group chat:", error);
       alert("Failed to create group chat.");

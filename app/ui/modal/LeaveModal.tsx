@@ -1,3 +1,4 @@
+'use client'
 import { useRouter } from "next/navigation";
 import React from "react";
 import { removeFriend } from "../../../services/group";
@@ -14,7 +15,7 @@ const LeaveModal = ({ isOpen, onClose, chat, user}) =>{
             alert("Leaving successfully!");
             router.push("/chat");
             location.reload();
-            onClose(); // close the modal
+            onClose(); 
         } catch (err) {
             alert("Error Leaving: " + err.message);
         }

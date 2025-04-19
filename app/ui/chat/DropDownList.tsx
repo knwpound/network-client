@@ -73,20 +73,7 @@ const DropDownList = ({ chat, currentUser }) => {
 
                     </div>
                   ) : (
-                    <div className={`dropdown-menu dropdown-menu-end ${isOpen ? "show" : ""}`} aria-labelledby="dropdownMenuButton"
-                data-bs-popper="static">
-                  <button 
-                    className="dropdown-item fw-semibold text-center" 
-                    onClick={() => setShowLeaveModal(true)}>
-                    Leave Group
-                  </button>
-                  <LeaveModal
-                    isOpen={showLeaveModal}
-                    onClose={() => setShowLeaveModal(false)}
-                    chat={chat}
-                    user={currentUser._id}
-                  />
-                </div>
+                    <div></div>
                   )}
                 
               </div>
