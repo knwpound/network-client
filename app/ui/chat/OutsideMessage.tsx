@@ -13,7 +13,7 @@ const OutsideMessage = ({ chat }) => {
     useState(()=>{
         const storedUser = localStorage.getItem("user");
         if(!chat.isGroupChat){
-            if(chat.users[0]._id==storedUser._id){
+            if(chat.users[0]._id!=storedUser._id){
               setName(chat.users[1].name);
               setColor(chat.users[1].profileColor);
             }else{
