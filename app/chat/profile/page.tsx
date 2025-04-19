@@ -7,8 +7,8 @@ import { userLogout } from "../../../services/profile"
 import { useRouter } from "next/navigation";
 import DeleteAccountModal from "../../ui/modal/DeleteAccountModal";
 const ProfilePage = () => {
-    const [name, setName] = useState(null);
-    const [inputValue, setInputValue] = useState(null);
+    const [name, setName] = useState("");
+    const [inputValue, setInputValue] = useState("");
     const [names, setNames] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showDeleteAccount, setShowDeleteAccount] = useState(false);
@@ -42,7 +42,7 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const users = await getUsers({ select: "name", limit: 3 });
+                const users = await getUsers({ search: inputValue, limit: 3 });
                 console.log(users);
                 const extractedData = users.data.map(person => ({
                     id: person._id,
@@ -97,32 +97,33 @@ const ProfilePage = () => {
         }
     };
 
-    const handleKeyPress = (event) => {
-        e.preventDefault();
-        setLoading(true);
-
+    useEffect(() => {
         const fetchUsers = async () => {
+            if (!inputValue) {
+                setNames([]);
+                return;
+            }
+    
+            setLoading(true);
             try {
-                const users = await getUsers({ select: "name", limit: 3 });
-                console.log(users);
+                const users = await getUsers({ search: inputValue, limit: 3 });
                 const extractedData = users.data.map(person => ({
                     id: person._id,
                     name: person.name
                 }));
-
-                console.log(extractedData);
-
-                setNames(extractedData)
-                console.log(names);
-
+                setNames(extractedData);
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
+            setLoading(false);
         };
-
-        fetchUsers();
-        setLoading(false);
-    };
+    
+        const delayDebounceFn = setTimeout(() => {
+            fetchUsers();
+        }, 300); // debounce by 300ms
+    
+        return () => clearTimeout(delayDebounceFn); // clean up on unmount or input change
+    }, [inputValue]);
 
 
     return (
@@ -171,7 +172,7 @@ const ProfilePage = () => {
                         placeholder="Search by name"
                         style={{ background: "#D9D9D9" }}
                         onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyPress}
+                        value={inputValue}
                     />
                     <div
                         className="mt-3 flex-grow-1 overflow-auto bg-white"
