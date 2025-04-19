@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import FriendTag from "../../ui/profile/FriendTag";
 import { changeUserInfo, getUsers } from "../../../services/user";
-import { userLogout } from "../../../services/profile"
 import { useRouter } from "next/navigation";
 import DeleteAccountModal from "../../ui/modal/DeleteAccountModal";
+import { userLogout } from "../../../services/profile";
 const ProfilePage = () => {
     const [name, setName] = useState("");
     const [inputValue, setInputValue] = useState("");
@@ -13,6 +13,7 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(false);
     const [showDeleteAccount, setShowDeleteAccount] = useState(false);
     const [currentUserId, setCurrentUserId] = useState(null);
+    
     const router = useRouter()
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -23,13 +24,16 @@ const ProfilePage = () => {
 
     const handleLogout = async () => {
         try {
-            userLogout();
+            await userLogout();
             router.push("/")
             location.reload()
         } catch (err) {
             alert("Error logout: " + err.message);
         }
     };
+
+    
+
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         console.log(storedUser);
@@ -42,7 +46,13 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const users = await getUsers({ search: inputValue, limit: 3 });
+                let users
+                if(inputValue !== "") {
+                    users = await getUsers({ search: inputValue, limit: 3 });
+                }
+                else {
+                    users = await getUsers({ limit: 3 });
+                }
                 console.log(users);
                 const extractedData = users.data.map(person => ({
                     id: person._id,
@@ -99,14 +109,16 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            if (!inputValue) {
-                setNames([]);
-                return;
-            }
     
             setLoading(true);
             try {
-                const users = await getUsers({ search: inputValue, limit: 3 });
+                let users
+                if(inputValue !== "") {
+                    users = await getUsers({ search: inputValue, limit: 3 });
+                }
+                else {
+                    users = await getUsers({ limit: 3 });
+                }
                 const extractedData = users.data.map(person => ({
                     id: person._id,
                     name: person.name
@@ -183,7 +195,7 @@ const ProfilePage = () => {
                         }}
                     >
                         {names.map((person) => (
-                            <FriendTag key={person.id} name={person.name} color={"pink"} />
+                            <FriendTag key={person.id} name={person.name} color={"pink"} userId={person.id}/>
                         ))}
 
                     </div>
