@@ -21,7 +21,8 @@ const DeleteAccountModal = ({ isOpen, onClose, user }) => {
         });
         alert("Delete Account successfully!");
         router.push("/");
-        onClose(); // close the modal
+        location.reload()
+        onClose();
       }
       else {
         alert("Incorrect quote");

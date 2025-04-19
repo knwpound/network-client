@@ -8,18 +8,18 @@ const AddFriendModal = ({ isOpen, onClose, chat}) =>{
   
     const handleAddFriend = async () => {
     if (!friendId.trim()) {
-      alert("Please enter a valid group name");
+      alert("Please enter a valid friend email");
       return;
     }
 
     try {
       const response = await addFriend(chat._id, friendId);
       
-      console.log(chat._id, response)
       if (!response.success) throw new Error("Add Friend failed");
 
       alert("Add Friend successfully!");
       router.push("/chat");
+      location.reload()
       setFriendId("");
       onClose();
     } catch (err) {

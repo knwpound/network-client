@@ -25,6 +25,7 @@ const ProfilePage = () => {
         try {
             userLogout();
             router.push("/")
+            location.reload()
         } catch (err) {
             alert("Error logout: " + err.message);
         }

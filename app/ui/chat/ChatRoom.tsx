@@ -5,12 +5,14 @@ import OnlineFriend from "./OnlineFriend";
 import axios from "axios";
 import socket from "../../../socket/socket.js";
 import ChatTypeModal from "../modal/ChatTypeModal";
+import { useRouter } from "next/navigation";
 
 const ChatRoom = () => {
     const [chats, setChats] = useState([]);
     const [loading,setLoading] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [socketConnected, setSocketConnected] = useState(false);
+    const router = useRouter()
     const serverAddr = process.env.NEXT_PUBLIC_BACKEND_URL;
      const fetchChats = async () => {
         try{
@@ -28,6 +30,7 @@ const ChatRoom = () => {
         }catch(error){
             console.error("Error fetching chats:", error);
             alert("Failed to fetch chats. Please try again.");
+            router.push("/")
         }
      }
 

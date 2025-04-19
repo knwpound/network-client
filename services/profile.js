@@ -10,9 +10,14 @@ const config = {
 
 export const userLogout = async () => {
     try {
+        const response = await axios.get(`${serverAddr}/api/v1/auth/logout`,
+            {
+                withCredentials: true,
+                config,
+            }
+        );
         localStorage.clear();
         sessionStorage.clear();
-
         document.cookie.split(';').forEach(cookie => {
             const eqPos = cookie.indexOf('=');
             const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;

@@ -73,7 +73,7 @@ const DropDownList = ({ chat, currentUser }) => {
 
                     </div>
                   ) : (
-                    <div className="dropdown-menu dropdown-menu-end show" aria-labelledby="dropdownMenuButton"
+                    <div className={`dropdown-menu dropdown-menu-end ${isOpen ? "show" : ""}`} aria-labelledby="dropdownMenuButton"
                 data-bs-popper="static">
                   <button 
                     className="dropdown-item fw-semibold text-center" 
