@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 const KickFriendModal = ({ isOpen, onClose, chat}) => {
     const [friends, setFriends] = useState([]);
     const [admin, setAdmin] = useState();
-    const [kickId, setKickId] = useState("");
     const router = useRouter();
-    const handleKickFriend = async () => {
+    const handleKickFriend = async (kickId) => {
         try {
             const response = await removeFriend(chat._id, kickId);
             
@@ -27,7 +26,6 @@ const KickFriendModal = ({ isOpen, onClose, chat}) => {
         const chat = JSON.parse(localStorage.getItem("chat"));
         setFriends(chat.users);
         setAdmin(chat.groupAdmin);
-        console.log(chat.users);
     }, []);
 
     if (!isOpen) return null;
@@ -77,8 +75,7 @@ const KickFriendModal = ({ isOpen, onClose, chat}) => {
                                         className="btn fw-bold rounded-3 ms-auto me-3"
                                         style={{ background: "#FFCEB4" }}
                                         onClick={() => {
-                                            setKickId(friend._id);
-                                            handleKickFriend();
+                                            handleKickFriend(friend._id);
                                         }}
                                     >
                                         Kick
