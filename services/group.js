@@ -30,7 +30,6 @@ export const renameGroup = async (chatId, chatName) => {
 
 export const removeFriend = async (chatId, userId) => {
     try {
-        console.log(chatId, userId)
         const response = await axios.put(`${serverAddr}/api/v1/chat/groupremove`,
             {
                 chatId: chatId,
@@ -59,7 +58,6 @@ export const addFriend = async (chatId, email) => {
         )
         let userId = null
         const users = userList.data.data
-        console.log(userList.data)
         for(let i = 0;i < userList.data.count;i++) {
             if(users[i].email == email) {
                 userId = users[i]._id
