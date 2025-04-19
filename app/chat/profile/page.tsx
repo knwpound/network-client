@@ -114,10 +114,10 @@ const ProfilePage = () => {
             try {
                 let users
                 if(inputValue !== "") {
-                    users = await getUsers({ search: inputValue, limit: 3 });
+                    users = await getUsers({ search: inputValue});
                 }
                 else {
-                    users = await getUsers({ limit: 3 });
+                    users = await getUsers();
                 }
                 const extractedData = users.data.map(person => ({
                     id: person._id,
@@ -189,14 +189,21 @@ const ProfilePage = () => {
                     <div
                         className="mt-3 flex-grow-1 overflow-auto bg-white"
                         style={{
-                            width: "100%",
-                            overflowY: "auto",
-                            overflowX: "hidden",
+                            maxHeight: "200px",
+                            overflowY: "hidden",
+                            overflowX: "auto",
                         }}
                     >
-                        {names.map((person) => (
-                            <FriendTag key={person.id} name={person.name} color={"pink"} userId={person.id}/>
-                        ))}
+                        {names
+                            .filter((person) => person.id !== currentUserId)
+                            .map((person) => (
+                                <FriendTag
+                                key={person.id}
+                                name={person.name}
+                                color="pink"
+                                userId={person.id}
+                                />
+                            ))}
 
                     </div>
                 </div>

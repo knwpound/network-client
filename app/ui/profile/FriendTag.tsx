@@ -1,3 +1,4 @@
+"use client"
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { createPrivateChat } from "../../../services/profile";
@@ -7,10 +8,11 @@ const FriendTag = ({name, color, userId}) =>{
     const router = useRouter()
     const handleCreatePrivateChat = async () => {
         try {
-            const res = createPrivateChat(userId);
+            const res = await createPrivateChat(userId);
+            console.log("response",res);
             alert("Succesfully create private chat: ");
 
-            router.push("/chat")
+            router.push(`/chat/${res._id}`);
             location.reload()
         } catch (err) {
             alert("Error create private chat: " + err.message);

@@ -170,21 +170,11 @@ const ChatRoom = () => {
             ))}
 
             </div>
-            <div className="dropdown">
-                <button className="btn dropdown-toggle fw-semibold ps-0 mt-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Lastest First
-                </button>
-                <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a className="dropdown-item" href="#">Action</a>
-                    <a className="dropdown-item" href="#">Another action</a>
-                    <a className="dropdown-item" href="#">Something else here</a>
-                </div>
-            </div>
             <div className="container ps-0" 
             style={{
                 scrollbarWidth: "none",      
                 msOverflowStyle: "none",
-                maxHeight: "280px",
+                maxHeight: "320px",
                 overflowY: "auto",
                 marginTop: "1rem",
                 paddingRight: "5px",

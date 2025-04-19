@@ -50,7 +50,7 @@ export const deleteAccount = async (userId) => {
 
 export const createPrivateChat = async (userId) => {
     try {
-        const userList = await axios.post(`${serverAddr}/api/v1/chat`, {
+        const response = await axios.post(`${serverAddr}/api/v1/chat`, {
                 userId: userId
             },
             {
@@ -59,6 +59,10 @@ export const createPrivateChat = async (userId) => {
             }
         )
 
+        if (response.data) {
+            localStorage.setItem('chat', JSON.stringify(response.data));
+        }
+        
         return response.data;
     } catch (error) {
         console.error("Failed to create private chat:", error);
