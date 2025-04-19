@@ -23,8 +23,11 @@ const ChatPage = () =>{
   const [chatName, setChatName] = useState("Sender");
   const [chat, setChat] = useState();
   const bottomRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);       
   const selectedChatCompareRef = useRef("");
-
+  const toggleDropdown = () => {
+              setIsOpen(!isOpen);
+            };
   const fetchMessages = async () => {
     try {
       setLoading(true);
@@ -175,7 +178,20 @@ const ChatPage = () =>{
         <div className="container vh-100 d-flex flex-column bg-white">
             {/* Header */}
             <div className="container d-flex p-3 pt-5 fw-bold align-items-center rounded-top border-bottom">
-                <h3 className="fw-bold m-0 ms-3">{chatName}</h3>
+                
+                <div className="dropdown  m-0 ms-3">
+                <button className="btn fw-bold fs-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                onClick={toggleDropdown}>
+                  {chatName}
+                </button>
+                <div className={`dropdown-menu ${isOpen ? "show" : ""}`} aria-labelledby="dropdownMenuButton">
+                {chat.users.map(user => {
+                  return <div key={user.email} className="fw-medium ms-3">{user.name}</div>;
+                })}
+
+                  
+                </div>
+              </div>
                 <DropDownList chat={chat} currentUser={currentUser} /> 
             </div>
 
