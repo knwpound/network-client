@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import { addFriend } from "../../../services/group";
+import { useRouter } from "next/navigation";
 
-const AddFriendModal = () =>{
+const AddFriendModal = ({ isOpen, onClose, chat}) =>{
+  const [friendId, setFriendId] = useState("");
+  const router = useRouter();
+  
+    const handleAddFriend = async () => {
+    if (!friendId.trim()) {
+      alert("Please enter a valid friend email");
+      return;
+    }
+
+    try {
+      const response = await addFriend(chat._id, friendId);
+      
+      if (!response.success) throw new Error("Add Friend failed");
+
+      alert("Add Friend successfully!");
+      router.push("/chat");
+      location.reload()
+      setFriendId("");
+      onClose();
+    } catch (err) {
+      alert("Error Add Friend: " + err.message);
+    }
+  };
+  if (!isOpen) return null;
     return(
         <div className="modal-overlay items-center justify-center">
       <div
@@ -10,17 +36,33 @@ const AddFriendModal = () =>{
         <div className="modal-header align-items-center justify-content-center">
             <h4 className="text-black mt-2 ms-auto fw-bold">Add new Friend</h4>
             <button
-        //   onClick={onClose}
-          className="m-2 ms-auto text-dark fs-3 border-0 bg-transparent"
-        >
+              onClick={onClose}
+              className="m-2 ms-auto text-dark fs-3 border-0 bg-transparent"
+            >
           &times;
         </button>
         </div>
         <div className="modal-body mb-3 text-center align-items-center justify-content-center">
-            <input type="text" className="form-control px-3 py-1 rounded-2 text-center fw-medium" placeholder="Enter Friend's email"/>
+            <input 
+              type="text"
+              className="form-control px-3 py-1 rounded-2 text-center fw-medium"
+              onChange={(e) => setFriendId(e.target.value)}
+              placeholder="Enter Friend's email"
+            />
             <div className="d-flex mt-4 align-items-center justify-content-center">
-                <button className="btn fw-bold me-5 py-2 px-4 " style={{backgroundColor:"lightgray"}}>Cancel</button>
-                <button className="btn fw-bold py-2 px-4 " style={{backgroundColor:"#FFCEB4"}}>Add</button>
+                <button
+                  className="btn fw-bold me-5 py-2 px-4 "
+                  style={{backgroundColor:"lightgray"}}
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn fw-bold py-2 px-4 "
+                  style={{backgroundColor:"#FFCEB4"}}
+                  onClick={handleAddFriend}>
+                  Add
+                </button>
             </div>
         </div>
       </div>

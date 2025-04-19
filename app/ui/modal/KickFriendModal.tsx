@@ -1,16 +1,34 @@
 "use client"
 import React, { useState, useEffect } from "react";
+import { removeFriend } from "../../../services/group";
+import { useRouter } from "next/navigation";
 
-const KickFriendModal = () => {
+const KickFriendModal = ({ isOpen, onClose, chat}) => {
     const [friends, setFriends] = useState([]);
     const [admin, setAdmin] = useState();
+    const router = useRouter();
+    const handleKickFriend = async (kickId) => {
+        try {
+            const response = await removeFriend(chat._id, kickId);
+            
+            if (!response.success) throw new Error("Kick failed");
+
+            alert("Kick successfully!");
+            router.push("/chat");
+            location.reload();
+            onClose(); // close the modal
+        } catch (err) {
+            alert("Error Kick Friends: " + err.message);
+        }
+    };
 
     useEffect(() => {
         const chat = JSON.parse(localStorage.getItem("chat"));
         setFriends(chat.users);
         setAdmin(chat.groupAdmin);
-        console.log(chat.users);
     }, []);
+
+    if (!isOpen) return null;
     return (
         <div className="modal-overlay items-center justify-center">
             <div
@@ -20,7 +38,7 @@ const KickFriendModal = () => {
                 <div className="modal-header align-items-center justify-content-center">
                     <h4 className="text-black mt-2 ms-auto fw-bold">Kick Friend</h4>
                     <button
-                        //   onClick={onClose}
+                          onClick={onClose}
                         className="m-2 ms-auto text-dark fs-3 border-0 bg-transparent"
                     >
                         &times;
@@ -56,6 +74,9 @@ const KickFriendModal = () => {
                                     <button
                                         className="btn fw-bold rounded-3 ms-auto me-3"
                                         style={{ background: "#FFCEB4" }}
+                                        onClick={() => {
+                                            handleKickFriend(friend._id);
+                                        }}
                                     >
                                         Kick
                                     </button>

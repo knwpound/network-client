@@ -1,6 +1,25 @@
+import { useRouter } from "next/navigation";
 import React from "react";
+import { removeFriend } from "../../../services/group";
 
-const LeaveModal = () =>{
+const LeaveModal = ({ isOpen, onClose, chat, user}) =>{
+  
+    const router = useRouter();
+    const handleLeave = async () => {
+        try {
+            const response = await removeFriend(chat._id, user);
+            
+            if (!response.success) throw new Error("Leaving failed");
+
+            alert("Leaving successfully!");
+            router.push("/chat");
+            location.reload();
+            onClose(); // close the modal
+        } catch (err) {
+            alert("Error Leaving: " + err.message);
+        }
+    };
+    if (!isOpen) return null;
     return(
         <div className="modal-overlay items-center justify-center">
       <div
@@ -13,8 +32,18 @@ const LeaveModal = () =>{
         <div className="modal-body mb-3 text-center align-items-center justify-content-center">
             <p className="fw-semibold">Are you sure you want to leave this group</p>
             <div className="d-flex align-items-center justify-content-center">
-                <button className="btn fw-bold shadow-sm me-5" style={{backgroundColor:"lightgray"}}>Cancel</button>
-                <button className="btn fw-bold shadow-sm px-3" style={{backgroundColor:"#FF9551"}}>Leave</button>
+                <button 
+                  className="btn fw-bold shadow-sm me-5"
+                  style={{backgroundColor:"lightgray"}}
+                  onClick={onClose}>
+                    Cancel
+                </button>
+                <button
+                  className="btn fw-bold shadow-sm px-3"
+                  style={{backgroundColor:"#FF9551"}}
+                  onClick={handleLeave}>
+                    Leave
+                  </button>
             </div>
         </div>
       </div>

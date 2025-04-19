@@ -3,12 +3,36 @@
 import React, { useEffect, useState } from "react";
 import FriendTag from "../../ui/profile/FriendTag";
 import { changeUserInfo, getUsers } from "../../../services/user";
-
+import { useRouter } from "next/navigation";
+import DeleteAccountModal from "../../ui/modal/DeleteAccountModal";
+import { userLogout } from "../../../services/profile";
 const ProfilePage = () => {
-    const [name, setName] = useState(null);
-    const [inputValue, setInputValue] = useState(null);
+    const [name, setName] = useState("");
+    const [inputValue, setInputValue] = useState("");
     const [names, setNames] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState(null);
+    
+    const router = useRouter()
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          setCurrentUserId(user._id);
+        }
+      }, []);
+
+    const handleLogout = async () => {
+        try {
+            await userLogout();
+            router.push("/")
+            location.reload()
+        } catch (err) {
+            alert("Error logout: " + err.message);
+        }
+    };
+
+    
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -22,7 +46,13 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const users = await getUsers({ select: "name", limit: 3 });
+                let users
+                if(inputValue !== "") {
+                    users = await getUsers({ search: inputValue, limit: 3 });
+                }
+                else {
+                    users = await getUsers({ limit: 3 });
+                }
                 console.log(users);
                 const extractedData = users.data.map(person => ({
                     id: person._id,
@@ -77,32 +107,35 @@ const ProfilePage = () => {
         }
     };
 
-    const handleKeyPress = (event) => {
-        e.preventDefault();
-        setLoading(true);
-
+    useEffect(() => {
         const fetchUsers = async () => {
+    
+            setLoading(true);
             try {
-                const users = await getUsers({ select: "name", limit: 3 });
-                console.log(users);
+                let users
+                if(inputValue !== "") {
+                    users = await getUsers({ search: inputValue});
+                }
+                else {
+                    users = await getUsers();
+                }
                 const extractedData = users.data.map(person => ({
                     id: person._id,
                     name: person.name
                 }));
-
-                console.log(extractedData);
-
-                setNames(extractedData)
-                console.log(names);
-
+                setNames(extractedData);
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
+            setLoading(false);
         };
-
-        fetchUsers();
-        setLoading(false);
-    };
+    
+        const delayDebounceFn = setTimeout(() => {
+            fetchUsers();
+        }, 300); // debounce by 300ms
+    
+        return () => clearTimeout(delayDebounceFn); // clean up on unmount or input change
+    }, [inputValue]);
 
 
     return (
@@ -151,26 +184,48 @@ const ProfilePage = () => {
                         placeholder="Search by name"
                         style={{ background: "#D9D9D9" }}
                         onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyPress}
+                        value={inputValue}
                     />
                     <div
                         className="mt-3 flex-grow-1 overflow-auto bg-white"
                         style={{
-                            width: "100%",
-                            overflowY: "auto",
-                            overflowX: "hidden",
+                            maxHeight: "200px",
+                            overflowY: "hidden",
+                            overflowX: "auto",
                         }}
                     >
-                        {names.map((person) => (
-                            <FriendTag key={person.id} name={person.name} color={"pink"} />
-                        ))}
+                        {names
+                            .filter((person) => person.id !== currentUserId)
+                            .map((person) => (
+                                <FriendTag
+                                key={person.id}
+                                name={person.name}
+                                color="pink"
+                                userId={person.id}
+                                />
+                            ))}
 
                     </div>
                 </div>
             </div>
             <div className="d-flex mt-2">
-                <button className="btn fw-bold shadow-sm rounded-3 ms-auto" style={{ background: "#D9D9D9" }}>Delete Account</button>
-                <button className="btn fw-bold shadow-sm rounded-3 ms-2" style={{ background: "#FFCEB4" }}>Logout</button>
+                <button 
+                    className="btn fw-bold shadow-sm rounded-3 ms-auto"
+                    style={{ background: "#D9D9D9" }}
+                    onClick={() => setShowDeleteAccount(true)}>
+                    Delete Account
+                </button>
+                <DeleteAccountModal
+                    isOpen={showDeleteAccount}
+                    onClose={() => setShowDeleteAccount(false)}
+                    user={currentUserId}
+                />
+                <button 
+                    className="btn fw-bold shadow-sm rounded-3 ms-2"
+                    style={{ background: "#FFCEB4" }}
+                    onClick={handleLogout}>
+                        Logout
+                    </button>
             </div>
         </div>
     )
