@@ -12,6 +12,14 @@ const AddFriendModal = ({ isOpen, onClose, chat}) =>{
       return;
     }
 
+    const chat = JSON.parse(localStorage.getItem("chat"));
+
+    const friendAlreadyExists = chat.users.some(user => user.email === friendId);
+    if (friendAlreadyExists) {
+      alert("This user is already in the chat");
+      return;
+    }
+
     try {
       const response = await addFriend(chat._id, friendId);
       

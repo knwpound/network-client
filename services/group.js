@@ -21,6 +21,7 @@ export const renameGroup = async (chatId, chatName) => {
             } 
         );
 
+        localStorage.setItem('chat', JSON.stringify(response.data.data));
         return response.data;
     } catch (error) {
         console.error("Failed to get chat info:", error);
@@ -41,6 +42,7 @@ export const removeFriend = async (chatId, userId) => {
             }
         );
 
+        localStorage.setItem('chat', JSON.stringify(response.data.data));
         return response.data;
     } catch (error) {
         console.error("Failed to send messages:", error);
@@ -77,6 +79,7 @@ export const addFriend = async (chatId, email) => {
             }
         )
 
+        localStorage.setItem('chat', JSON.stringify(response.data.data));
         return response.data;
     } catch (error) {
         console.error("Failed to add friend:", error);
