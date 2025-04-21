@@ -23,13 +23,7 @@ const AddFriendModal = ({ isOpen, onClose, chat}) =>{
 
     if (!response.success) throw new Error("Add Friend failed");
 
-    alert("Friend added successfully!");
 
-    // ✅ get updated chatId from response
-    const updatedChatId = response.data._id;
-
-    // ✅ navigate directly to chat page
-    router.push(`/chat/${updatedChatId}`);
 
     setFriendId("");
     onClose();

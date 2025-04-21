@@ -14,7 +14,7 @@ const LeaveModal = ({ isOpen, onClose, chat, user }) => {
 
       alert("You have left the group.");
       onClose(); // close modal first
-      router.push("/chat");
+      
     } catch (err) {
       alert("Error Leaving: " + err.message);
     }

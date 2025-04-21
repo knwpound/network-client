@@ -161,7 +161,22 @@ const ChatPage = () => {
       alert(`Failed to send message: ${error.message}`);
     }
   };
-
+  useEffect(() => {
+    const handleGroupUpdated = ({ chatId, users }) => {
+      if (chatId === cid && chat) {
+        console.log("✅ Group updated: refreshing user list");
+        setChat(prev => ({
+          ...prev,
+          users: users, // directly update users array
+        }));
+        setChatName(`${chat.chatName} (${users.length})`);
+      }
+    };
+  
+    socket.on("group updated", handleGroupUpdated);
+    return () => socket.off("group updated", handleGroupUpdated);
+  }, [cid, chat]);
+  
   const typingHandler = (e) => setNewMessage(e.target.value);
 
   if (!currentUser || !chat) return <div>Loading...</div>;

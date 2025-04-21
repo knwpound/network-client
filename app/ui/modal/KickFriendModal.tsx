@@ -13,9 +13,7 @@ const KickFriendModal = ({ isOpen, onClose, chat}) => {
             
             if (!response.success) throw new Error("Kick failed");
 
-            alert("Kick successfully!");
-            router.push("/chat");
-            location.reload();
+         
             onClose(); // close the modal
         } catch (err) {
             alert("Error Kick Friends: " + err.message);
