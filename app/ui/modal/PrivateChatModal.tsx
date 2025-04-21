@@ -99,8 +99,16 @@ const PrivateChatModal: React.FC<PrivateChatModalProps> = ({ show, onClose }) =>
         }
       );
       
-      console.log(response);
-      const newChatId = response?.data?._id;
+      const newChatId = response?.data?.data?._id;
+      if (!newChatId) throw new Error("Chat ID not found in response");
+      
+      localStorage.setItem('chat', JSON.stringify(response.data.data));
+      
+      onClose();
+      if (isClient) {
+        router.push(`/chat/${newChatId}`);
+      }
+      
       console.log("New Chat ID:", newChatId);
       console.log("Chat Data:", response.data);
   

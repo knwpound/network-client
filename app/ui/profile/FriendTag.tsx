@@ -12,7 +12,7 @@ const FriendTag = ({name, color, userId}) =>{
             console.log("response",res);
             alert("Succesfully create private chat: ");
 
-            router.push(`/chat/${res._id}`);
+            router.push(`/chat/${res.data._id}`);
             location.reload()
         } catch (err) {
             alert("Error create private chat: " + err.message);

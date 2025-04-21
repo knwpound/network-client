@@ -6,34 +6,38 @@ const AddFriendModal = ({ isOpen, onClose, chat}) =>{
   const [friendId, setFriendId] = useState("");
   const router = useRouter();
   
-    const handleAddFriend = async () => {
-    if (!friendId.trim()) {
-      alert("Please enter a valid friend email");
-      return;
-    }
+  const handleAddFriend = async () => {
+  if (!friendId.trim()) {
+    alert("Please enter a valid friend email");
+    return;
+  }
 
-    const chat = JSON.parse(localStorage.getItem("chat"));
+  const friendAlreadyExists = chat.users.some(user => user.email === friendId);
+  if (friendAlreadyExists) {
+    alert("This user is already in the chat");
+    return;
+  }
 
-    const friendAlreadyExists = chat.users.some(user => user.email === friendId);
-    if (friendAlreadyExists) {
-      alert("This user is already in the chat");
-      return;
-    }
+  try {
+    const response = await addFriend(chat._id, friendId);
 
-    try {
-      const response = await addFriend(chat._id, friendId);
-      
-      if (!response.success) throw new Error("Add Friend failed");
+    if (!response.success) throw new Error("Add Friend failed");
 
-      alert("Add Friend successfully!");
-      router.push("/chat");
-      location.reload()
-      setFriendId("");
-      onClose();
-    } catch (err) {
-      alert("Error Add Friend: " + err.message);
-    }
-  };
+    alert("Friend added successfully!");
+
+    // ✅ get updated chatId from response
+    const updatedChatId = response.data._id;
+
+    // ✅ navigate directly to chat page
+    router.push(`/chat/${updatedChatId}`);
+
+    setFriendId("");
+    onClose();
+  } catch (err) {
+    alert("Error adding friend: " + err.message);
+  }
+};
+
   if (!isOpen) return null;
     return(
         <div className="modal-overlay items-center justify-center">

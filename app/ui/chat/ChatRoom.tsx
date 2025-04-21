@@ -79,14 +79,15 @@ const ChatRoom = () => {
       
         if (chat.isGroupChat) {
           return chat.chatName?.toLowerCase().includes(lowerSearch);
-        } else {
+        } else if (Array.isArray(chat.users)) {
           const otherUser = chat.users.find(
             (user) => user._id !== currentUser._id
           );
-      
           return otherUser?.name?.toLowerCase().includes(lowerSearch);
         }
+        return false;
       });
+      
       
 
       const handlePrivateClick = () => {
