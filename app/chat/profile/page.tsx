@@ -202,6 +202,7 @@ const ProfilePage = () => {
                                 name={person.name}
                                 color="pink"
                                 userId={person.id}
+                        
                                 />
                             ))}
 

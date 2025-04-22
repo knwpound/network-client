@@ -17,7 +17,6 @@ const RenameGroupModal = ({ isOpen, onClose, chat}) =>{
       
       if (!response.success) throw new Error("Rename failed");
 
-
       setGroupName("");
       onClose(); // close the modal
     } catch (err) {

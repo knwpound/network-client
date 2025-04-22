@@ -59,20 +59,8 @@ useEffect(() => {
 
   return () => socket.off("private chat created", handlePrivateChat);
 }, []);
-useEffect(() => {
-  const handler = ({ chatId, chatName }) => {
-    setChats((prev) => {
-      const updated = prev.map((chat) =>
-        chat._id === chatId ? { ...chat, chatName } : chat
-      );
-      localStorage.setItem("chats", JSON.stringify(updated)); // ✅ persist change
-      return updated;
-    });
-  };
 
-  socket.on("group renamed", handler);
-  return () => socket.off("group renamed", handler);
-}, []);
+
 
 useEffect(() => {
   const handler = ({ chat }) => {
@@ -118,7 +106,32 @@ useEffect(() => {
       socket.off("online users");
     };
   }, []);
-
+  useEffect(() => {
+    const handleUserUpdated = ({ userId, updatedUser }) => {
+      // Update the online users in state
+      setOnlineUsers((prev) =>
+        prev.map((user) => (user._id === userId ? { ...user, ...updatedUser } : user))
+      );
+  
+      // Update the current user's data in localStorage if it's the same user
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      if (storedUser._id === userId) {
+        localStorage.setItem("user", JSON.stringify({ ...storedUser, ...updatedUser }));
+      }
+    };
+  
+    // Listen for the 'user updated' event to update the localStorage
+    socket.on("user updated", handleUserUpdated);
+  
+    return () => {
+      socket.off("user updated", handleUserUpdated);
+    };
+  }, []);
+  
+  
+  
+  
+  
   // ✅ Socket listener: message recieved
   useEffect(() => {
     socket.on("message recieved", (newMsg) => {
@@ -154,16 +167,33 @@ useEffect(() => {
   }, [])
   // ✅ Socket listener: group updated
   useEffect(() => {
-    socket.on("group updated", ({ chatId, users }) => {
+    const handleGroupUpdated = ({ chatId, users }) => {
+      console.log("📦 [Socket] Group updated:", chatId, users); // ✅ this will log when event fires
+  
       setChats((prev) =>
         prev.map((chat) =>
           chat._id === chatId ? { ...chat, users } : chat
         )
       );
-    });
-
-    return () => socket.off("group updated");
+    };
+  
+    socket.on("group updated", handleGroupUpdated);
+  
+    return () => socket.off("group updated", handleGroupUpdated); // ✅ unmount safely
   }, []);
+  useEffect(() => {
+    const handler = ({ chat }) => {
+      console.log("📦 Received updated chat from socket:", chat);
+  
+      setChats((prev) =>
+        prev.map((c) => (c._id === chat._id ? chat : c))
+      );
+    };
+  
+    socket.on("group renamed", handler);
+    return () => socket.off("group renamed", handler);
+  }, []);
+  
 
   const filteredChats = chats.filter((chat) => {
     const lowerSearch = searchTerm.toLowerCase();

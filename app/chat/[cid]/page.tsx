@@ -70,11 +70,14 @@ const ChatPage = () => {
   useEffect(() => {
     socket.on("group renamed", ({ chatId, chatName }) => {
       if (chatId === cid) {
+        
         setChat((prev) => {
           if (!prev) return prev;
           const updated = { ...prev, chatName };
           setChatName(`${chatName} (${updated.users?.length || 0})`);
+      
           localStorage.setItem("chat", JSON.stringify(updated)); // ✅ store
+        
           return updated;
         });
       }
@@ -83,6 +86,35 @@ const ChatPage = () => {
     return () => socket.off("group renamed");
   }, [cid]);
   
+  useEffect(() => {
+    const handleUserUpdated = ({ userId, updatedUser }) => {
+      setChat((prevChat) => {
+        if (!prevChat) return prevChat;
+  
+        const updatedUsers = prevChat.users.map((user) =>
+          user._id === userId ? { ...user, ...updatedUser } : user
+        );
+  
+        const updatedAdmin =
+          prevChat.groupAdmin && prevChat.groupAdmin._id === userId
+            ? { ...prevChat.groupAdmin, ...updatedUser }
+            : prevChat.groupAdmin;
+  
+        const updatedChat = {
+          ...prevChat,
+          users: updatedUsers,
+          groupAdmin: updatedAdmin,
+        };
+  
+        localStorage.setItem("chat", JSON.stringify(updatedChat));
+      
+        return updatedChat;
+      });
+    };
+  
+    socket.on("user updated", handleUserUpdated);
+    return () => socket.off("user updated", handleUserUpdated);
+  }, []);
   
   
   
@@ -93,6 +125,8 @@ const ChatPage = () => {
     setCurrentUser(user);
 
     const cachedChat = JSON.parse(localStorage.getItem("chat"));
+
+    console.log("yay");
     if (cachedChat && cachedChat._id === cid) {
       setChat(cachedChat);
     } else {
