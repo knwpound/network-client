@@ -1,9 +1,7 @@
-"use client"
+"use client";
 import React from "react";
-import { useRouter } from "next/navigation";
 
-const OutsideMessage = ({ chat }) => {
-  const router = useRouter();
+const OutsideMessage = ({ chat, unreadCount = 0, onClick }) => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
 
@@ -28,16 +26,11 @@ const OutsideMessage = ({ chat }) => {
     minute: "2-digit",
   });
 
-  const handlerOnClick = () => {
-    router.push(`/chat/${chat._id}`);
-    localStorage.setItem("chat", JSON.stringify(chat));
-  };
-
   return (
     <button
       className="btn d-flex align-items-center rounded-3 shadow-sm py-2 mb-2 w-100"
       style={{ background: "white" }}
-      onClick={handlerOnClick}
+      onClick={onClick} // 🔁 Controlled by parent
     >
       <div
         className="ms-3 rounded-circle d-flex justify-content-center align-items-center"
@@ -45,7 +38,7 @@ const OutsideMessage = ({ chat }) => {
       >
         <img src="../images/icon/user.png" alt="" style={{ width: "20px" }} />
       </div>
-      <div className="ms-3 text-start">
+      <div className="ms-3 text-start flex-grow-1">
         <p className="fw-bold m-0">{name}</p>
         {userInGroup ? (
           <p className="m-0" style={{ fontSize: "14px" }}>{message}</p>
@@ -55,7 +48,7 @@ const OutsideMessage = ({ chat }) => {
           </p>
         )}
       </div>
-      <div className="ms-auto mb-0 me-1 text-end">
+      <div className="ms-auto mb-0 me-1 text-end d-flex flex-column align-items-end">
         {userInGroup && (
           <>
             <p
@@ -64,6 +57,14 @@ const OutsideMessage = ({ chat }) => {
             >
               {date}
             </p>
+            {unreadCount > 0 && (
+              <div
+                className="badge bg-danger rounded-pill mt-1"
+                style={{ fontSize: "12px", padding: "4px 8px", minWidth: "24px" }}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </div>
+            )}
           </>
         )}
       </div>

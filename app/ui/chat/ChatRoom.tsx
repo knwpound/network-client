@@ -41,7 +41,49 @@ const ChatRoom = () => {
     router.push("/");
   }
 };
+useEffect(() => {
+  const handlePrivateChat = ({ chat }) => {
+    console.log("📩 Private chat created:", chat);
+    setChats((prev) => {
+      // Prevent duplicate if already exists
+      const exists = prev.some((c) => c._id === chat._id);
+      if (exists) return prev;
 
+      return [chat, ...prev];
+    });
+
+    socket.emit("join chat", chat._id); // Join the room immediately
+  };
+
+  socket.on("private chat created", handlePrivateChat);
+
+  return () => socket.off("private chat created", handlePrivateChat);
+}, []);
+useEffect(() => {
+  const handler = ({ chatId, chatName }) => {
+    setChats((prev) => {
+      const updated = prev.map((chat) =>
+        chat._id === chatId ? { ...chat, chatName } : chat
+      );
+      localStorage.setItem("chats", JSON.stringify(updated)); // ✅ persist change
+      return updated;
+    });
+  };
+
+  socket.on("group renamed", handler);
+  return () => socket.off("group renamed", handler);
+}, []);
+
+useEffect(() => {
+  const handler = ({ chat }) => {
+    console.log("🎉 Received group created");
+    setChats((prev) => [chat, ...prev]);
+    socket.emit("join chat", chat._id);
+  };
+
+  socket.on("group created", handler);
+  return () => socket.off("group created", handler);
+}, []);
 
   useEffect(() => {
     fetchChats();
@@ -80,21 +122,36 @@ const ChatRoom = () => {
   // ✅ Socket listener: message recieved
   useEffect(() => {
     socket.on("message recieved", (newMsg) => {
+      const currentUserId = JSON.parse(localStorage.getItem("user"))?._id;
+  
       setChats((prevChats) => {
         const updated = [...prevChats];
         const index = updated.findIndex((c) => c._id === newMsg.chat._id);
         if (index !== -1) {
-          const updatedChat = { ...updated[index], latestMessage: newMsg };
+          const chat = updated[index];
+  
+          // 🛑 DON'T increment unread if already viewing this chat
+          const isViewingChat = window.location.pathname === `/chat/${newMsg.chat._id}`;
+          const isMe = newMsg.sender?._id === currentUserId;
+          const unreadCount = isViewingChat || isMe
+            ? chat.unreadCount || 0
+            : (chat.unreadCount || 0) + 1;
+  
+          const updatedChat = {
+            ...chat,
+            latestMessage: newMsg,
+            unreadCount,
+          };
+  
           updated.splice(index, 1);
           updated.unshift(updatedChat);
         }
         return updated;
       });
     });
-
+  
     return () => socket.off("message recieved");
-  }, []);
-
+  }, [])
   // ✅ Socket listener: group updated
   useEffect(() => {
     socket.on("group updated", ({ chatId, users }) => {
@@ -199,9 +256,26 @@ const ChatRoom = () => {
           paddingRight: "5px",
         }}
       >
-        {filteredChats.map((chat) => (
-          <OutsideMessage chat={chat} key={chat._id} />
-        ))}
+       {filteredChats.map((chat) => (
+  <OutsideMessage
+    key={chat._id}
+    chat={chat}
+    unreadCount={chat.unreadCount || 0}
+    onClick={() => {
+      // ✅ Reset unread count in local state
+      setChats((prev) =>
+        prev.map((c) =>
+          c._id === chat._id ? { ...c, unreadCount: 0 } : c
+        )
+      );
+
+      // ✅ Redirect and store the current chat
+      localStorage.setItem("chat", JSON.stringify(chat));
+      router.push(`/chat/${chat._id}`);
+    }}
+  />
+))}
+
       </div>
     </div>
   );

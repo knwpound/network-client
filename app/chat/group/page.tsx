@@ -80,8 +80,7 @@ const GroupPage = () => {
       );
 
       const newChatId = response?.data?.data?._id;
-      console.log(newChatId);
-      console.log(response.data.data)
+    
       localStorage.setItem('chat', JSON.stringify(response.data.data));
       if (!newChatId) throw new Error("Chat ID not found in response");
 
