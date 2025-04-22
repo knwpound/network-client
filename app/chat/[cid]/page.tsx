@@ -144,7 +144,7 @@ const ChatPage = () => {
       const updated = { ...sent.data, readBy: [currentUser._id] };
       setNewMessage("");
       socket.emit("new message", updated);
-      setMessages((prev) => [...prev, updated]);
+    
     } catch (error) {
       alert(`Failed to send message: ${error.message}`);
     }
