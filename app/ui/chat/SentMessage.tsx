@@ -19,7 +19,7 @@ const SentMessage = ({ message, time, readBy = [] }) => {
     <div className="d-flex flex-column align-items-end">
       {/* Message bubble */}
       <div
-        className="p-2 px-3 rounded-3 mt-3 text-white"
+        className="p-2 px-3 rounded-3 mt-3"
         style={{ maxWidth: "60%", background: "#FFCEB4" }}
       >
         {message}
