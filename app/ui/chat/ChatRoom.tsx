@@ -167,20 +167,23 @@ useEffect(() => {
   }, [])
   // ✅ Socket listener: group updated
   useEffect(() => {
-    const handleGroupUpdated = ({ chatId, users }) => {
-      console.log("📦 [Socket] Group updated:", chatId, users); // ✅ this will log when event fires
+    const handleGroupUpdated = ({ chatId, users, chatName }) => {
+      console.log("📦 [Socket] Group updated:", chatId, users, chatName);
   
       setChats((prev) =>
         prev.map((chat) =>
-          chat._id === chatId ? { ...chat, users } : chat
+          chat._id === chatId
+            ? { ...chat, users, chatName: chatName ?? chat.chatName }
+            : chat
         )
       );
     };
   
     socket.on("group updated", handleGroupUpdated);
   
-    return () => socket.off("group updated", handleGroupUpdated); // ✅ unmount safely
+    return () => socket.off("group updated", handleGroupUpdated);
   }, []);
+  
   useEffect(() => {
     const handler = ({ chat }) => {
       console.log("📦 Received updated chat from socket:", chat);

@@ -67,24 +67,7 @@ const ChatPage = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    socket.on("group renamed", ({ chatId, chatName }) => {
-      if (chatId === cid) {
-        
-        setChat((prev) => {
-          if (!prev) return prev;
-          const updated = { ...prev, chatName };
-          setChatName(`${chatName} (${updated.users?.length || 0})`);
-      
-          localStorage.setItem("chat", JSON.stringify(updated)); // ✅ store
-        
-          return updated;
-        });
-      }
-    });
-  
-    return () => socket.off("group renamed");
-  }, [cid]);
+
   
   useEffect(() => {
     const handleUserUpdated = ({ userId, updatedUser }) => {
@@ -206,18 +189,22 @@ const ChatPage = () => {
     }
   };
   useEffect(() => {
-    const handleGroupUpdated = ({ chatId, users }) => {
+    const handleGroupUpdated = ({ chatId, users, chatName }) => {
       if (chatId === cid && chat) {
-        const updatedChat = { ...chat, users };
+        const updatedChat = {
+          ...chat,
+          users,
+          chatName,
+        };
         setChat(updatedChat);
-        setChatName(`${chat.chatName} (${users.length})`);
-        localStorage.setItem("chat", JSON.stringify(updatedChat)); // ✅ store
+        setChatName(`${chatName} (${users.length})`);
       }
     };
   
     socket.on("group updated", handleGroupUpdated);
     return () => socket.off("group updated", handleGroupUpdated);
   }, [cid, chat]);
+  
   
   
   const typingHandler = (e) => setNewMessage(e.target.value);
