@@ -188,25 +188,44 @@ const ChatPage = () => {
           <div className="dropdown m-0 ms-3">
             <button className="btn fw-bold fs-3" onClick={toggleDropdown}>{chatName}</button>
             <div className={`dropdown-menu ${isOpen ? "show" : ""}`}>
-              {chat.users?.map((user) => (
-                <div key={user.email} className="fw-medium ms-3">{user.name}</div>
+              {Array.isArray(chat.users) && chat.users.map((user) => (
+                <div key={user.email || user._id} className="fw-medium ms-3">{user.name}</div>
               ))}
             </div>
           </div>
+          {/* We can still render DropDownList safely */}
           <DropDownList chat={chat} currentUser={currentUser} />
         </div>
-
+  
         <div className="flex-grow-1 d-flex justify-content-center align-items-center">
           <div className="text-center">
             <h4 className="mb-3">You're not a member of this group.</h4>
-            <button className="btn btn-primary px-4 py-2 rounded-4" onClick={joinGroupHandler}>
-              Join Group
+            <button
+              className="btn btn-primary px-4 py-2 rounded-4"
+              onClick={async () => {
+                try {
+                  if (socket.connected) {
+                    socket.emit("join chat", cid); // ✅ join first
+                    console.log("✅ Emitting join chat BEFORE addFriend");
+                  }
+              
+                  await addFriend(cid, currentUser.email);
+              
+                  setUserInGroup(true);
+          
+                } catch (err) {
+                  alert("Failed to join group: " + err.message);
+                }
+              }}
+            >
+              Join Group (Add Yourself)
             </button>
           </div>
         </div>
       </div>
     );
   }
+  
 
   return (
     <div className="container vh-100 d-flex flex-column bg-white">
