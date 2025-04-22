@@ -68,20 +68,6 @@ const ChatPage = () => {
     }
   };
 
-  const joinGroupHandler = async () => {
-    try {
-      const email = currentUser?.email;
-      if (!email) return;
-      await addFriend(cid, email);
-      await fetchChatInfo(); // refetch updated chat
-      setUserInGroup(true);
-      fetchMessages();
-    } catch (error) {
-      console.error("Join failed", error);
-      alert("❌ Failed to join group.");
-    }
-  };
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!user?._id) return;
@@ -120,8 +106,10 @@ const ChatPage = () => {
   }, [chat, currentUser]);
 
   useEffect(() => {
+   
     socket.on("message recieved", (newMsg) => {
       if (newMsg.chat._id !== cid) return;
+      console.log("📩 Incoming message to ChatRoom:");
       setMessages((prev) => [...prev, newMsg]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
       setTimeout(() => markMessagesAsRead(cid), 150);

@@ -18,30 +18,30 @@ const ChatRoom = () => {
   const router = useRouter();
 
   const fetchChats = async () => {
-    try {
-      const config = {
-        withCredentials: true,
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
-      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chat`, config);
-  
-      const chatList = data.data;
-      setChats(chatList);
-    
-      // ✅ Join all chat rooms so we can receive socket messages
-      chatList.forEach((chat) => {
-        socket.emit("join chat", chat._id);
-        console.log("🔗 Joined chat room:", chat._id);
-      });
-    } catch (error) {
-      console.error("Error fetching chats:", error);
-      alert("Failed to fetch chats. Please try again.");
-      router.push("/");
-    }
-  };
-  
+  try {
+    const config = {
+      withCredentials: true,
+      headers: {
+        "Content-type": "application/json",
+      },
+    };
+    const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chat`, config);
+
+    const chatList = data.data;
+    setChats(chatList);
+
+    // ✅ Join all chat rooms so we can receive socket messages
+    chatList.forEach((chat) => {
+      socket.emit("join chat", chat._id);
+      console.log("🔗 Joined chat room:", chat._id);
+    });
+  } catch (error) {
+    console.error("Error fetching chats:", error);
+    alert("Failed to fetch chats. Please try again.");
+    router.push("/");
+  }
+};
+
 
   useEffect(() => {
     fetchChats();
