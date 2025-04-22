@@ -167,22 +167,36 @@ useEffect(() => {
   }, [])
   // ✅ Socket listener: group updated
   useEffect(() => {
-    const handleGroupUpdated = ({ chatId, users, chatName }) => {
-      console.log("📦 [Socket] Group updated:", chatId, users, chatName);
+    const handleGroupUpdated = ({ chatId, users, chatName, updatedUser }) => {
+      console.log("📦 [Socket] Group updated:", chatId, users, chatName, updatedUser);
   
       setChats((prev) =>
-        prev.map((chat) =>
-          chat._id === chatId
-            ? { ...chat, users, chatName: chatName ?? chat.chatName }
-            : chat
-        )
+        prev.map((chat) => {
+          if (chat._id !== chatId) return chat;
+  
+          const updatedUsers = chat.users.map((u) =>
+            updatedUser && u._id === updatedUser._id ? { ...u, ...updatedUser } : u
+          );
+  
+          const updatedAdmin =
+            chat.groupAdmin?._id === updatedUser?._id
+              ? { ...chat.groupAdmin, ...updatedUser }
+              : chat.groupAdmin;
+  
+          return {
+            ...chat,
+            users: users ?? updatedUsers,
+            groupAdmin: updatedAdmin,
+            chatName: chatName ?? chat.chatName,
+          };
+        })
       );
     };
   
     socket.on("group updated", handleGroupUpdated);
-  
     return () => socket.off("group updated", handleGroupUpdated);
   }, []);
+  
   
   useEffect(() => {
     const handler = ({ chat }) => {
