@@ -234,16 +234,7 @@ const ChatPage = () => {
       {/* Only render message input and search if the user is in the group */}
       {userInGroup && (
         <>
-          <div className="sticky-top p-3">
-            {/* Search input */}
-            <input
-              type="text"
-              className="form-control mb-3"
-              placeholder="Search messages..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
-            />
-          </div>
+          
 
           <div className="flex-grow-1 overflow-auto p-3 bg-white">
             <div className="d-flex flex-column gap-3">
@@ -286,7 +277,16 @@ const ChatPage = () => {
               )}
             </div>
           </div>
-
+          <div className="sticky-top p-3">
+            {/* Search input */}
+            <input
+              type="text"
+              className="form-control mb-3"
+              placeholder="Search messages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            />
+          </div>
           <div className="p-3 bg-white border-top d-flex">
             <input
               type="text"
