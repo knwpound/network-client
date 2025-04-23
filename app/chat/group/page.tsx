@@ -97,13 +97,15 @@ const GroupPage = () => {
 
 
   const handleSearchChange = (e) => {
-    const text = e.target.value;
+    const text = e.target.value.toLowerCase();
     setSearchText(text);
     const filtered = allUsers.filter((user) =>
-      user.name.toLowerCase().includes(text.toLowerCase())
+      user.name.toLowerCase().includes(text) ||
+      user.email?.toLowerCase().includes(text) // ✅ filter by email too
     );
     setUsers(filtered);
   };
+  
 
   return (
     <div className="container my-4 px-4" style={{ maxWidth: "700px" }}>
@@ -151,18 +153,20 @@ const GroupPage = () => {
               const isAdded = selectedUsers.some((u) => u._id === user._id);
               return (
                 <div key={user._id}>
-                  <InvitedFriend
-                    name={user.name}
-                    color={"pink"}
-                    isAdded={isAdded}
-                    onToggle={() => {
-                      if (isAdded) {
-                        setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
-                      } else {
-                        setSelectedUsers([...selectedUsers, user]);
-                      }
-                    }}
-                  />
+                <InvitedFriend
+  name={user.name}
+  email={user.email} // ✅ Add this line
+  color={"pink"}
+  isAdded={isAdded}
+  onToggle={() => {
+    if (isAdded) {
+      setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
+    } else {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+  }}
+/>
+
                 </div>
               );
             })}
