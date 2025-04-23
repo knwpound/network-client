@@ -24,7 +24,10 @@ const ChatPage = () => {
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchMessageTerm, setSearchMessageTerm] = useState(""); // Search term for messages
   const bottomRef = useRef(null);
+  
+  const messageRefs = useRef([]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -176,6 +179,11 @@ const ChatPage = () => {
     );
   });
 
+  // Function to handle scrolling to a message
+  const scrollToMessage = (index) => {
+    messageRefs.current[index].scrollIntoView({ behavior: "smooth" });
+  };
+
   const handleJoinGroup = async () => {
     try {
       if (socket.connected) {
@@ -187,6 +195,12 @@ const ChatPage = () => {
     } catch (err) {
       alert("Failed to join group: " + err.message);
     }
+  };
+
+  const handleSearchClick = (message) => {
+    setSearchTerm(""); // Clear search term
+    const messageIndex = messages.findIndex((msg) => msg._id === message._id);
+    scrollToMessage(messageIndex); // Scroll to the message
   };
 
   if (!chat) return <div>Loading...</div>;
@@ -237,14 +251,36 @@ const ChatPage = () => {
                 <div>Loading...</div>
               ) : (
                 <>
-                  {filteredMessages.map((message) => {
-                    const isMe = message.sender?._id === currentUser?._id;
-                    return isMe ? (
-                      <SentMessage key={message._id} message={message.content} time={message.createdAt} readBy={message.readBy} />
-                    ) : (
-                      <RecievedMessage key={message._id} name={message.sender?.name} color={message.sender?.profileColor} message={message.content} time={message.createdAt} />
-                    );
-                  })}
+                  {filteredMessages.map((message, index) => {
+  const isMe = message.sender?._id === currentUser?._id;
+
+  return isMe ? (
+    <SentMessage
+      key={message._id}
+      ref={(el) => (messageRefs.current[index] = el)}
+      message={message.content}
+      time={message.createdAt}
+      readBy={message.readBy}
+      onClick={() => {
+        setSearchTerm(""); // Clear search
+        messageRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }}
+    />
+  ) : (
+    <RecievedMessage
+      key={message._id}
+      ref={(el) => (messageRefs.current[index] = el)}
+      name={message.sender?.name}
+      color={message.sender?.profileColor}
+      message={message.content}
+      onClick={() => {
+        setSearchTerm(""); // Clear search
+        messageRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }}
+    />
+  );
+})}
+
                   <div ref={bottomRef} />
                 </>
               )}
