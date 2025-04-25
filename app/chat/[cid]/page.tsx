@@ -23,7 +23,11 @@ const ChatPage = () => {
   const [userInGroup, setUserInGroup] = useState(true);
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchMessageTerm, setSearchMessageTerm] = useState(""); // Search term for messages
   const bottomRef = useRef(null);
+  
+  const messageRefs = useRef([]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -34,8 +38,6 @@ const ChatPage = () => {
       });
   
       const chatData = response.data.data;
-  
-      console.log("📦 Full fetched chat:", chatData); // should be full object
   
       if (chatData && chatData.users && chatData._id) {
         setChat(chatData);
@@ -49,7 +51,6 @@ const ChatPage = () => {
       router.push("/chat");
     }
   };
-  
 
   const fetchMessages = async () => {
     try {
@@ -68,39 +69,6 @@ const ChatPage = () => {
     }
   };
 
-  
-  useEffect(() => {
-    const handleUserUpdated = ({ userId, updatedUser }) => {
-      setChat((prevChat) => {
-        if (!prevChat) return prevChat;
-  
-        const updatedUsers = prevChat.users.map((user) =>
-          user._id === userId ? { ...user, ...updatedUser } : user
-        );
-  
-        const updatedAdmin =
-          prevChat.groupAdmin && prevChat.groupAdmin._id === userId
-            ? { ...prevChat.groupAdmin, ...updatedUser }
-            : prevChat.groupAdmin;
-  
-        const updatedChat = {
-          ...prevChat,
-          users: updatedUsers,
-          groupAdmin: updatedAdmin,
-        };
-  
-        localStorage.setItem("chat", JSON.stringify(updatedChat));
-      
-        return updatedChat;
-      });
-    };
-  
-    socket.on("user updated", handleUserUpdated);
-    return () => socket.off("user updated", handleUserUpdated);
-  }, []);
-  
-  
-  
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!user?._id) return;
@@ -109,7 +77,6 @@ const ChatPage = () => {
 
     const cachedChat = JSON.parse(localStorage.getItem("chat"));
 
-    console.log("yay");
     if (cachedChat && cachedChat._id === cid) {
       setChat(cachedChat);
     } else {
@@ -131,9 +98,6 @@ const ChatPage = () => {
       setIsGroupAdmin(false);
       setUserInGroup(true);
   
-    
-    
-      
       const other = chat.users?.find((u) => u._id !== currentUser._id);
       setChatName(other?.name || "Private Chat");
       fetchMessages();
@@ -142,8 +106,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     const handleMessageReceived = (newMsg) => {
-      if (newMsg.chat._id !== cid) return; // ✅ still filter
-      console.log("📩 Incoming message to ChatRoom:");
+      if (newMsg.chat._id !== cid) return;
       setMessages((prev) => [...prev, newMsg]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
       setTimeout(() => markMessagesAsRead(cid), 150);
@@ -152,9 +115,9 @@ const ChatPage = () => {
     socket.on("message recieved", handleMessageReceived);
   
     return () => {
-      socket.off("message recieved", handleMessageReceived); // ✅ cleanly remove
+      socket.off("message recieved", handleMessageReceived); 
     };
-  }, [cid])
+  }, [cid]);
 
   useEffect(() => {
     socket.on("messages read", ({ chatId, readerId }) => {
@@ -188,74 +151,59 @@ const ChatPage = () => {
       alert(`Failed to send message: ${error.message}`);
     }
   };
+
+  const handleGroupUpdated = ({ chatId, users, chatName }) => {
+    if (chatId === cid && chat) {
+      const updatedChat = {
+        ...chat,
+        users,
+        chatName,
+      };
+      setChat(updatedChat);
+      setChatName(`${chatName} (${users.length})`);
+    }
+  };
+
   useEffect(() => {
-    const handleGroupUpdated = ({ chatId, users, chatName }) => {
-      if (chatId === cid && chat) {
-        const updatedChat = {
-          ...chat,
-          users,
-          chatName,
-        };
-        setChat(updatedChat);
-        setChatName(`${chatName} (${users.length})`);
-      }
-    };
-  
     socket.on("group updated", handleGroupUpdated);
     return () => socket.off("group updated", handleGroupUpdated);
   }, [cid, chat]);
   
-  
-  
   const typingHandler = (e) => setNewMessage(e.target.value);
 
-  if (!currentUser || !chat) return <div>Loading...</div>;
-
-  if (chat.isGroupChat && !userInGroup) {
+  // Search messages based on the searchTerm
+  const filteredMessages = messages.filter((message) => {
     return (
-      <div className="container vh-100 d-flex flex-column bg-white">
-        <div className="container d-flex p-3 pt-5 fw-bold align-items-center border-bottom">
-          <div className="dropdown m-0 ms-3">
-            <button className="btn fw-bold fs-3" onClick={toggleDropdown}>{chatName}</button>
-            <div className={`dropdown-menu ${isOpen ? "show" : ""}`}>
-              {Array.isArray(chat.users) && chat.users.map((user) => (
-                <div key={user.email || user._id} className="fw-medium ms-3">{user.name}</div>
-              ))}
-            </div>
-          </div>
-          {/* We can still render DropDownList safely */}
-          <DropDownList chat={chat} currentUser={currentUser} />
-        </div>
-  
-        <div className="flex-grow-1 d-flex justify-content-center align-items-center">
-          <div className="text-center">
-            <h4 className="mb-3">You're not a member of this group.</h4>
-            <button
-              className="btn btn-primary px-4 py-2 rounded-4"
-              onClick={async () => {
-                try {
-                  if (socket.connected) {
-                    socket.emit("join chat", cid); // ✅ join first
-                    console.log("✅ Emitting join chat BEFORE addFriend");
-                  }
-              
-                  await addFriend(cid, currentUser.email);
-              
-                  setUserInGroup(true);
-          
-                } catch (err) {
-                  alert("Failed to join group: " + err.message);
-                }
-              }}
-            >
-              Join Group (Add Yourself)
-            </button>
-          </div>
-        </div>
-      </div>
+      message.content.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      chat.chatName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }
-  
+  });
+
+  // Function to handle scrolling to a message
+  const scrollToMessage = (index) => {
+    messageRefs.current[index].scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleJoinGroup = async () => {
+    try {
+      if (socket.connected) {
+        socket.emit("join chat", cid); 
+        console.log("✅ Emitting join chat");
+      }
+      await addFriend(cid, currentUser.email);
+      setUserInGroup(true);
+    } catch (err) {
+      alert("Failed to join group: " + err.message);
+    }
+  };
+
+  const handleSearchClick = (message) => {
+    setSearchTerm(""); // Clear search term
+    const messageIndex = messages.findIndex((msg) => msg._id === message._id);
+    scrollToMessage(messageIndex); // Scroll to the message
+  };
+
+  if (!chat) return <div>Loading...</div>;
 
   return (
     <div className="container vh-100 d-flex flex-column bg-white">
@@ -271,37 +219,87 @@ const ChatPage = () => {
         <DropDownList chat={chat} currentUser={currentUser} />
       </div>
 
-      <div className="flex-grow-1 overflow-auto p-3 bg-white">
-        <div className="d-flex flex-column gap-3">
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            <>
-              {messages.map((message) => {
-                const isMe = message.sender?._id === currentUser?._id;
-                return isMe ? (
-                  <SentMessage key={message._id} message={message.content} time={message.createdAt} readBy={message.readBy} />
-                ) : (
-                  <RecievedMessage key={message._id} name={message.sender?.name} color={message.sender?.profileColor} message={message.content} time={message.createdAt} />
-                );
-              })}
-              <div ref={bottomRef} />
-            </>
-          )}
+      {chat.isGroupChat && !userInGroup && (
+        <div className="container text-center mt-4">
+          <h4 className="mb-3">You're not a member of this group.</h4>
+          <button
+            className="btn btn-primary px-4 py-2 rounded-4"
+            onClick={handleJoinGroup}
+          >
+            Join Group (Add Yourself)
+          </button>
         </div>
-      </div>
+      )}
 
-      <div className="p-3 bg-white border-top d-flex">
-        <input
-          type="text"
-          className="form-control me-2 rounded-4 px-5 border border-0"
-          placeholder="Type a message..."
-          style={{ background: "#FFE4D6" }}
-          onChange={typingHandler}
-          value={newMessage}
-        />
-        <button className="btn fw-semibold" onClick={handleSendMessage}>Send</button>
-      </div>
+      {/* Only render message input and search if the user is in the group */}
+      {userInGroup && (
+        <>
+          
+
+          <div className="flex-grow-1 overflow-auto p-3 bg-white">
+            <div className="d-flex flex-column gap-3">
+              {loading ? (
+                <div>Loading...</div>
+              ) : (
+                <>
+                  {filteredMessages.map((message, index) => {
+  const isMe = message.sender?._id === currentUser?._id;
+
+  return isMe ? (
+    <SentMessage
+      key={message._id}
+      ref={(el) => (messageRefs.current[index] = el)}
+      message={message.content}
+      time={message.createdAt}
+      readBy={message.readBy}
+      onClick={() => {
+        setSearchTerm(""); // Clear search
+        messageRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }}
+    />
+  ) : (
+    <RecievedMessage
+      key={message._id}
+      ref={(el) => (messageRefs.current[index] = el)}
+      name={message.sender?.name}
+      color={message.sender?.profileColor}
+      message={message.content}
+      onClick={() => {
+        setSearchTerm(""); // Clear search
+        messageRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }}
+    />
+  );
+})}
+
+                  <div ref={bottomRef} />
+                </>
+              )}
+            </div>
+          </div>
+          <div className="sticky-top p-3">
+            {/* Search input */}
+            <input
+              type="text"
+              className="form-control mb-3"
+              placeholder="Search messages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            />
+          </div>
+          <div className="p-3 bg-white border-top d-flex">
+            <input
+              type="text"
+              className="form-control me-2 rounded-4 px-5 border border-0"
+              placeholder="Type a message..."
+              style={{ background: "#FFE4D6" }}
+              onChange={typingHandler}
+              value={newMessage}
+            />
+            <button className="btn fw-semibold" onClick={handleSendMessage}>Send</button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

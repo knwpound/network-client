@@ -45,34 +45,24 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            try {
-                let users
-                if(inputValue !== "") {
-                    users = await getUsers({ search: inputValue, limit: 3 });
-                }
-                else {
-                    users = await getUsers({ limit: 3 });
-                }
-                console.log(users);
-                const extractedData = users.data.map(person => ({
-                    id: person._id,
-                    name: person.name
-                }));
-
-                console.log(extractedData);
-
-                setNames(extractedData)
-                console.log(names);
-
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
+          setLoading(true);
+          try {
+            const users = await getUsers(); // No search param
+            const extractedData = users.data.map((person) => ({
+              id: person._id,
+              name: person.name,
+              email: person.email,
+            }));
+            setNames(extractedData);
+          } catch (error) {
+            console.error("Error fetching users:", error);
+          }
+          setLoading(false);
         };
-
+      
         fetchUsers();
-
-
-    }, []);
+      }, []);
+      
 
     const saveHandler = async (e) => {
         e.preventDefault();
@@ -107,35 +97,7 @@ const ProfilePage = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchUsers = async () => {
     
-            setLoading(true);
-            try {
-                let users
-                if(inputValue !== "") {
-                    users = await getUsers({ search: inputValue});
-                }
-                else {
-                    users = await getUsers();
-                }
-                const extractedData = users.data.map(person => ({
-                    id: person._id,
-                    name: person.name
-                }));
-                setNames(extractedData);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-            setLoading(false);
-        };
-    
-        const delayDebounceFn = setTimeout(() => {
-            fetchUsers();
-        }, 300); // debounce by 300ms
-    
-        return () => clearTimeout(delayDebounceFn); // clean up on unmount or input change
-    }, [inputValue]);
 
 
     return (
@@ -194,17 +156,22 @@ const ProfilePage = () => {
                             overflowX: "auto",
                         }}
                     >
-                        {names
-                            .filter((person) => person.id !== currentUserId)
-                            .map((person) => (
-                                <FriendTag
-                                key={person.id}
-                                name={person.name}
-                                color="pink"
-                                userId={person.id}
-                        
-                                />
-                            ))}
+                       {names
+  .filter((person) =>
+    person.id !== currentUserId &&
+    (person.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+     person.email.toLowerCase().includes(inputValue.toLowerCase()))
+  )
+  .map((person) => (
+    <FriendTag
+      key={person.id}
+      name={person.name}
+      email={person.email}
+      color="pink"
+      userId={person.id}
+    />
+))}
+
 
                     </div>
                 </div>

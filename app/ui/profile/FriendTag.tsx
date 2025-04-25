@@ -4,12 +4,13 @@ import { createPrivateChat } from "../../../services/profile";
 
 interface FriendTagProps {
   name: string;
+  email: string; // ✅ Add email prop
   color: string;
   userId: string;
-  onClose: () => void; // 👈 add onClose prop
+  onClose: () => void;
 }
 
-const FriendTag: React.FC<FriendTagProps> = ({ name, color, userId, onClose }) => {
+const FriendTag: React.FC<FriendTagProps> = ({ name, email, color, userId, onClose }) => {
   const router = useRouter();
 
   const handleCreatePrivateChat = async () => {
@@ -20,7 +21,7 @@ const FriendTag: React.FC<FriendTagProps> = ({ name, color, userId, onClose }) =
       if (!chat || !chat._id) throw new Error("Chat ID not returned");
 
       localStorage.setItem("chat", JSON.stringify(chat));
-      if (onClose) onClose(); // 👈 close the modal first
+      if (onClose) onClose();
       router.push(`/chat/${chat._id}`);
     } catch (err: any) {
       alert("Error creating private chat: " + err.message);
@@ -36,7 +37,10 @@ const FriendTag: React.FC<FriendTagProps> = ({ name, color, userId, onClose }) =
         <img src="../images/icon/user.png" alt="user" style={{ width: "20px" }} />
       </div>
 
-      <h5 className="fw-bold m-0 ms-4">{name}</h5>
+      <div className="ms-4">
+        <h5 className="fw-bold m-0">{name}</h5>
+        <p className="m-0 text-muted" style={{ fontSize: "0.9rem" }}>{email}</p> {/* ✅ Show email */}
+      </div>
 
       <button
         className="btn fw-bold rounded-3 ms-auto me-4"

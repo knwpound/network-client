@@ -1,6 +1,6 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
-const SentMessage = ({ message, time, readBy = [] }) => {
+const SentMessage = forwardRef(({ message, time, readBy = [], onClick }, ref) => {
   const formatDateTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleString([], {
@@ -12,11 +12,10 @@ const SentMessage = ({ message, time, readBy = [] }) => {
     });
   };
 
-  // Exclude sender from read count
   const seenByCount = readBy.length > 1 ? readBy.length - 1 : 0;
 
   return (
-    <div className="d-flex flex-column align-items-end">
+    <div className="d-flex flex-column align-items-end" ref={ref} onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       {/* Message bubble */}
       <div
         className="p-2 px-3 rounded-3 mt-3"
@@ -32,6 +31,6 @@ const SentMessage = ({ message, time, readBy = [] }) => {
       </small>
     </div>
   );
-};
+});
 
 export default SentMessage;
